@@ -1,7 +1,11 @@
 // ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
+import 'package:iconly/iconly.dart';
 import 'package:meep/pages/meeting_details.dart';
+import 'package:meep/pages/mom_notifications.dart';
+import 'package:meep/pages/profile_page.dart';
+import 'package:meep/utils/constants.dart';
 import 'package:meep/utils/count_tile.dart';
 import 'package:meep/utils/meet_tile.dart';
 import 'package:meep/utils/upcoming_tile.dart';
@@ -41,13 +45,23 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      Container(
-                        height: 67 / 360 * MediaQuery.of(context).size.width,
-                        width: 67 / 360 * MediaQuery.of(context).size.width,
-                        // color: Colors.red,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.red,
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          onTap: () {
+                            Navigator.pushNamed(context, ProfilePage.id);
+                          },
+                          child: Container(
+                            height:
+                                67 / 360 * MediaQuery.of(context).size.width,
+                            width: 67 / 360 * MediaQuery.of(context).size.width,
+                            // color: Colors.red,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: Colors.red,
+                            ),
+                          ),
                         ),
                       )
                     ],
@@ -66,9 +80,23 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     // ignore: prefer_const_literals_to_create_immutables
                     children: [
-                      CountTile(name: "Meetings", count: "3"),
-                      CountTile(name: "Updates", count: "12"),
-                      CountTile(name: "Tasks", count: "13"),
+                      CountTile(
+                        name: "Meetings",
+                        count: "3",
+                        onpressed: () {},
+                      ),
+                      CountTile(
+                        name: "Updates",
+                        count: "12",
+                        onpressed: () {
+                          Navigator.pushNamed(context, MomNotifications.id);
+                        },
+                      ),
+                      CountTile(
+                        name: "Tasks",
+                        count: "13",
+                        onpressed: () {},
+                      ),
                     ],
                   ),
                 ),
@@ -120,52 +148,209 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         height: 11 / 800 * MediaQuery.of(context).size.height,
                       ),
-                      Material(
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.pushNamed(context, MeetingDetails.id);
-                          },
-                          child: Container(
-                            height: 133 /
-                                800 *
-                                MediaQuery.of(context).size.height,
-                            width:
-                                319 / 360 * MediaQuery.of(context).size.width,
-                            // color: Colors.red,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: Colors.white,
-                              // ignore: prefer_const_literals_to_create_immutables
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromRGBO(69, 68, 68, 0.3),
-                                  blurRadius: 25,
-                                  spreadRadius: 4,
-                                  offset: Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              // ignore: prefer_const_literals_to_create_immutables
-                              children: [
-                                SizedBox(
-                                  height: 20 /
-                                      800 *
-                                      MediaQuery.of(context).size.height,
-                                ),
-                                Text(
-                                  "Looks like You have no meetings for today!",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromRGBO(69, 68, 68, 1),
+                      Container(
+                        width: 317 / 360 * MediaQuery.of(context).size.width,
+                        height: 113 / 800 * MediaQuery.of(context).size.height,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Color.fromRGBO(107, 0, 215, 1),
+                          boxShadow: [
+                            kShadow,
+                          ],
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical:
+                                20 / 800 * MediaQuery.of(context).size.height,
+                            horizontal:
+                                20 / 360 * MediaQuery.of(context).size.width,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    // ignore: prefer_const_literals_to_create_immutables
+                                    children: [
+                                      Text(
+                                        "Monthly Review",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 2,
+                                      ),
+                                      Text(
+                                        "Kshitij, Vice Chairperson",
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                )
-                              ],
-                            ),
+                                  Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {},
+                                      child: Container(
+                                        height: 21,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              height: 3,
+                                              width: 3,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 3,
+                                              width: 3,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 3,
+                                              width: 3,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                // ignore: prefer_const_literals_to_create_immutables
+                                children: [
+                                  Text(
+                                    "17:30",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Main Conferernce Room",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Text(
+                                    "E-Cell",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ),
+                      Container(
+                        height: 11 / 800 * MediaQuery.of(context).size.height,
+                        width: 295 / 360 * MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(15),
+                            bottomRight: Radius.circular(15),
+                          ),
+                          color: Colors.white,
+                          boxShadow: [
+                            kShadow,
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 11 / 800 * MediaQuery.of(context).size.height,
+                        width: 269 / 360 * MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(15),
+                            bottomRight: Radius.circular(15),
+                          ),
+                          color: Colors.white,
+                          boxShadow: [
+                            kShadow,
+                          ],
+                        ),
+                      ),
+                      // Material(
+                      //   child: InkWell(
+                      //     onTap: () {
+                      //       Navigator.pushNamed(context, MeetingDetails.id);
+                      //     },
+                      //     child: Container(
+                      //       height:
+                      //           133 / 800 * MediaQuery.of(context).size.height,
+                      //       width:
+                      //           319 / 360 * MediaQuery.of(context).size.width,
+                      //       // color: Colors.red,
+                      //       decoration: BoxDecoration(
+                      //         borderRadius: BorderRadius.circular(15),
+                      //         color: Colors.white,
+                      //         // ignore: prefer_const_literals_to_create_immutables
+                      //         boxShadow: [
+                      //           BoxShadow(
+                      //             color: Color.fromRGBO(69, 68, 68, 0.3),
+                      //             blurRadius: 25,
+                      //             spreadRadius: 4,
+                      //             offset: Offset(0, 8),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       child: Column(
+                      //         // ignore: prefer_const_literals_to_create_immutables
+                      //         children: [
+                      //           SizedBox(
+                      //             height: 20 /
+                      //                 800 *
+                      //                 MediaQuery.of(context).size.height,
+                      //           ),
+                      //           Text(
+                      //             "Looks like You have no meetings for today!",
+                      //             style: TextStyle(
+                      //               fontSize: 14,
+                      //               fontWeight: FontWeight.w700,
+                      //               color: Color.fromRGBO(69, 68, 68, 1),
+                      //             ),
+                      //           )
+                      //         ],
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       // UpcomingTile(),
                       SizedBox(
                         height: 30 / 800 * MediaQuery.of(context).size.height,

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:meep/pages/home_page.dart';
 import 'package:meep/pages/meeting_details.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:meep/pages/mom_notifications.dart';
+import 'package:meep/pages/profile_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,12 +22,14 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         fontFamily: 'Proxima Nova',
-        
+        // fontFamily: GoogleFonts.,
         // primaryTextTheme: ,
         primarySwatch: Colors.blue,
       ),
       initialRoute: HomePage.id,
       routes: {
+        ProfilePage.id:(context) => ProfilePage(),
+        MomNotifications.id:(context) => MomNotifications(),
         HomePage.id:(context) => HomePage(),
         MeetingDetails.id:(context) => MeetingDetails(),
       },

@@ -2,8 +2,11 @@
 
 import 'package:flutter/material.dart';
 
-Color kColor1 = Color.fromRGBO(69, 68, 68, 1);
-Color kColor2 = Color.fromRGBO(107, 0, 215, 1);
+Color kGrey = Color.fromRGBO(69, 68, 68, 1);
+Color kPurple = Color.fromRGBO(107, 0, 215, 1);
+Color kOrange = Color.fromRGBO(255, 122, 0, 1);
+Color kOrange2 = Color.fromRGBO(255, 151, 76, 1);
+Color kPurple2 = Color.fromRGBO(162, 48, 237, 1);
 
 BoxShadow kShadow = BoxShadow(
   blurRadius: 25,

@@ -288,7 +288,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w700,
-                                              color: kColor1,
+                                              color: kGrey,
                                             ),
                                           ),
                                         ),
@@ -331,7 +331,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w700,
-                                                    color: kColor2,
+                                                    color: kPurple,
                                                   ),
                                                 ),
                                                 Text(
@@ -339,7 +339,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                                   style: TextStyle(
                                                     fontSize: 14,
                                                     fontWeight: FontWeight.w400,
-                                                    color: kColor1,
+                                                    color: kGrey,
                                                   ),
                                                 ),
                                               ],
@@ -360,7 +360,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w700,
-                                              color: kColor1,
+                                              color: kGrey,
                                             ),
                                           ),
                                         ),
@@ -422,7 +422,152 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                                     ),
                                   ),
                                 )
-                              : AgendaTile(title: "Revenue Generation Methods"),
+                              : Column(
+                                  // ignore: prefer_const_literals_to_create_immutables
+                                  children: [
+                                    Container(
+                                      width: 318 /
+                                          360 *
+                                          MediaQuery.of(context).size.width,
+                                      // height: 59 / 800 * MediaQuery.of(context).size.height,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        boxShadow: [
+                                          kShadow,
+                                        ],
+                                        color: Colors.transparent,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            // constraints: BoxConstraints.expand(),
+                                            width: 52 /
+                                                360 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                            height: 59 /
+                                                800 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .height,
+                                            // height: double.infinity,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(15),
+                                                bottomLeft: Radius.circular(15),
+                                              ),
+                                              color: kOrange.withOpacity(0.43),
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                IconlyBold.edit,
+                                                size: 25,
+                                                color: Color.fromRGBO(
+                                                    19, 15, 38, 1),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 266 /
+                                                360 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                            // height: 59 / 800 * MediaQuery.of(context).size.height,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topRight: Radius.circular(15),
+                                                bottomRight:
+                                                    Radius.circular(15),
+                                              ),
+                                              color: Colors.white,
+                                            ),
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 5 /
+                                                    800 *
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .height,
+                                                horizontal: 16 /
+                                                    360 *
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  // SizedBox(
+                                                  //   width: 16 /
+                                                  //       360 *
+                                                  //       MediaQuery.of(context)
+                                                  //           .size
+                                                  //           .width,
+                                                  // ),
+                                                  Flexible(
+                                                    child: Text(
+                                                      "Action Taken Report",
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        color: kGrey,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {},
+                                                    icon: Icon(
+                                                      IconlyBold.arrow_down_2,
+                                                      color: kGrey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 18 /
+                                          800 *
+                                          MediaQuery.of(context).size.height,
+                                    ),
+                                    AgendaTile(
+                                      title: "Revenue Generation Methods",
+                                    ),
+                                    SizedBox(
+                                      height: 18 /
+                                          800 *
+                                          MediaQuery.of(context).size.height,
+                                    ),
+                                    AgendaTile(
+                                      title: "Commision of New Research",
+                                    ),
+                                    SizedBox(
+                                      height: 18 /
+                                          800 *
+                                          MediaQuery.of(context).size.height,
+                                    ),
+                                    AgendaTile(
+                                      title: "Collaborative Efforts",
+                                    ),
+                                    SizedBox(
+                                      height: 18 /
+                                          800 *
+                                          MediaQuery.of(context).size.height,
+                                    ),
+                                    AgendaTile(
+                                      title:
+                                          "Planning for Upcoming Recruitmentsss RecruitemPlanning for Upcoming Recruitments Recruitem",
+                                    ),
+                                  ],
+                                ),
                         ],
                       ),
                     ),
@@ -439,7 +584,7 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                 height: 49 / 800 * MediaQuery.of(context).size.height,
                 width: 317 / 360 * MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                  color: kColor2,
+                  color: kPurple,
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Center(
