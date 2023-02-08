@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:meep/pages/home_page.dart';
 import 'package:meep/pages/meeting_details.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:meep/pages/mom_notifications.dart';
+import 'package:meep/pages/previous_meet_page.dart';
 import 'package:meep/pages/profile_page.dart';
 
 void main() {
@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
         MomNotifications.id:(context) => MomNotifications(),
         HomePage.id:(context) => HomePage(),
         MeetingDetails.id:(context) => MeetingDetails(),
+        PreviousMeetPage.id: (context) => PreviousMeetPage(),
       },
     );
   }

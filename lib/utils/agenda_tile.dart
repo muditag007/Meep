@@ -12,7 +12,7 @@ class AgendaTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 318 / 360 * MediaQuery.of(context).size.width,
-      // height: 59 / 800 * MediaQuery.of(context).size.height,
+      height: 59 / 800 * MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         boxShadow: [

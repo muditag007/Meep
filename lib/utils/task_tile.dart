@@ -37,7 +37,7 @@ class _TaskTileState extends State<TaskTile> {
             color: Colors.white,
           ),
           duration: Duration(
-            milliseconds: 500,
+            milliseconds: 300,
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -47,6 +47,7 @@ class _TaskTileState extends State<TaskTile> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // SizedBox(),
                 Row(
                   // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -225,37 +226,34 @@ class _TaskTileState extends State<TaskTile> {
                     ),
                   ],
                 ),
-                markDoneVisible
-                    ? Material(
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              complete = !complete;
-                            });
-                          },
-                          child: Container(
-                            height:
-                                28 / 800 * MediaQuery.of(context).size.height,
-                            width:
-                                125 / 360 * MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: kPurple,
-                            ),
-                            child: Center(
-                              child: Text(
-                                !complete ? "Mark as done" : "Mark as undone",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
+                if (markDoneVisible)
+                  Material(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          complete = !complete;
+                        });
+                      },
+                      child: Container(
+                        height: 28 / 800 * MediaQuery.of(context).size.height,
+                        width: 125 / 360 * MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: kPurple,
+                        ),
+                        child: Center(
+                          child: Text(
+                            !complete ? "Mark as done" : "Mark as undone",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                      )
-                    : SizedBox(),
+                      ),
+                    ),
+                  )
               ],
             ),
           ),
