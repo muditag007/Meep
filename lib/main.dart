@@ -1,11 +1,16 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:meep/pages/agenda_page.dart';
 import 'package:meep/pages/home_page.dart';
+import 'package:meep/pages/meet_wait_page.dart';
 import 'package:meep/pages/meeting_details.dart';
 import 'package:meep/pages/mom_notifications.dart';
 import 'package:meep/pages/previous_meet_page.dart';
 import 'package:meep/pages/profile_page.dart';
+import 'package:meep/pages/signin_page.dart';
+import 'package:meep/pages/temp.dart';
+import 'package:meep/utils/constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,15 +29,21 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Proxima Nova',
         // fontFamily: GoogleFonts.,
         // primaryTextTheme: ,
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
       ),
-      initialRoute: HomePage.id,
+      // initialRoute: HomePage.id,
+      initialRoute: SignInPage.id,
+      // initialRoute: Temp.id,
       routes: {
+        SignInPage.id:(context) => SignInPage(),
+        Temp.id: (context) => Temp(),
         ProfilePage.id:(context) => ProfilePage(),
         MomNotifications.id:(context) => MomNotifications(),
         HomePage.id:(context) => HomePage(),
         MeetingDetails.id:(context) => MeetingDetails(),
         PreviousMeetPage.id: (context) => PreviousMeetPage(),
+        MeetWaitPage.id: (context) => MeetWaitPage(),
+        AgendaPage.id: (context) => AgendaPage(),
       },
     );
   }

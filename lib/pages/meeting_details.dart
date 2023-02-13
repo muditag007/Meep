@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
+import 'package:meep/pages/meet_wait_page.dart';
 import 'package:meep/utils/agenda_tile.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:meep/utils/invitee.dart';
@@ -685,21 +686,31 @@ class _MeetingDetailsState extends State<MeetingDetails> {
                 ],
               ),
               child: Center(
-                child: Container(
-                  height: 49 / 800 * MediaQuery.of(context).size.height,
-                  width: 317 / 360 * MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: kPurple,
-                    borderRadius: BorderRadius.circular(15),
-                    // ignore: prefer_const_literals_to_create_immutables
-                  ),
-                  child: Center(
-                    child: Text(
-                      "Join This Meeting",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      Navigator.pushNamed(context, MeetWaitPage.id);
+                    },
+                    child: Container(
+                      height: 49 / 800 * MediaQuery.of(context).size.height,
+                      width: 317 / 360 * MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: kPurple,
+                        borderRadius: BorderRadius.circular(15),
+                        // ignore: prefer_const_literals_to_create_immutables
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Join This Meeting",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),

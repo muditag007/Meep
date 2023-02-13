@@ -17,8 +17,12 @@ class _TaskTileState extends State<TaskTile> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
         onTap: () {
           setState(() {
             markDoneVisible = !markDoneVisible;
@@ -181,7 +185,9 @@ class _TaskTileState extends State<TaskTile> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
-                          color: Color.fromRGBO(26, 132, 0, 1),
+                          color: !complete
+                              ? Color.fromRGBO(255, 0, 0, 1)
+                              : Color.fromRGBO(26, 132, 0, 1),
                         ),
                         maxLines: 2,
                         softWrap: false,

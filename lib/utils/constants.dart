@@ -7,6 +7,8 @@ Color kPurple = Color.fromRGBO(107, 0, 215, 1);
 Color kOrange = Color.fromRGBO(255, 122, 0, 1);
 Color kOrange2 = Color.fromRGBO(255, 151, 76, 1);
 Color kPurple2 = Color.fromRGBO(162, 48, 237, 1);
+Color kGreen = Color.fromRGBO(116, 254, 68, 1);
+Color kWhite = Color.fromRGBO(222, 222, 222, 1);
 
 BoxShadow kShadow = BoxShadow(
   blurRadius: 25,

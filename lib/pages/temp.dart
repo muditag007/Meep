@@ -1,7 +1,6 @@
-// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, avoid_unnecessary_containers, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:iconly/iconly.dart';
 import 'package:meep/pages/meeting_details.dart';
 import 'package:meep/pages/mom_notifications.dart';
 import 'package:meep/pages/previous_meet_page.dart';
@@ -9,16 +8,15 @@ import 'package:meep/pages/profile_page.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:meep/utils/count_tile.dart';
 import 'package:meep/utils/meet_tile.dart';
-import 'package:meep/utils/upcoming_tile.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-  static String id = "homepage";
+class Temp extends StatefulWidget {
+  const Temp({super.key});
+  static String id = "temp";
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<Temp> createState() => _TempState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _TempState extends State<Temp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,8 +28,15 @@ class _HomePageState extends State<HomePage> {
         ),
         child: CustomScrollView(
           slivers: [
-            SliverFillRemaining(
-              child: Column(
+            SliverAppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              // pinned: true,
+              centerTitle: false,
+              expandedHeight: 300,
+              // expandedHeight: 500,
+              // stretch: true,
+              flexibleSpace: Column(
                 children: [
                   SizedBox(
                     height: 42 / 800 * MediaQuery.of(context).size.height,
@@ -110,6 +115,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                ],
+              ),
+            ),
+            SliverFillRemaining(
+              // ignore: sort_child_properties_last
+              child: Column(
+                children: [
                   SizedBox(
                     height: 40 / 800 * MediaQuery.of(context).size.height,
                   ),
