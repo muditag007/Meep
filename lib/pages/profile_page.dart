@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:flutter_switch/flutter_switch.dart';
@@ -53,10 +54,21 @@ class _ProfilePageState extends State<ProfilePage> {
                 width: 257 / 360 * MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
-                  border: Border.all(
-                    color: kOrange.withOpacity(0.43),
+                  border: GradientBoxBorder(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromRGBO(255, 122, 0, 0.43),
+                        Colors.white.withOpacity(0.1),
+                      ],
+                    ),
                     width: 1,
                   ),
+                  // border: Border.all(
+                  //   color: kOrange.withOpacity(0.43),
+                  //   width: 1,
+                  // ),
                   gradient: LinearGradient(
                     // ignore: prefer_const_literals_to_create_immutables
                     colors: [
