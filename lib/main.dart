@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:meep/pages/agenda_page.dart';
 import 'package:meep/pages/home_page.dart';
+import 'package:meep/pages/meet_timer_page.dart';
 import 'package:meep/pages/meet_wait_page.dart';
 import 'package:meep/pages/meeting_details.dart';
 import 'package:meep/pages/mom_notifications.dart';
@@ -35,12 +36,13 @@ class MyApp extends StatelessWidget {
       initialRoute: SignInPage.id,
       // initialRoute: Temp.id,
       routes: {
+        MeetTimerPage.id:(context) => MeetTimerPage(),
         SignInPage.id:(context) => SignInPage(),
         Temp.id: (context) => Temp(),
         ProfilePage.id:(context) => ProfilePage(),
         MomNotifications.id:(context) => MomNotifications(),
         HomePage.id:(context) => HomePage(),
-        MeetingDetails.id:(context) => MeetingDetails(),
+        // MeetingDetails.id:(context) => MeetingDetails(),
         PreviousMeetPage.id: (context) => PreviousMeetPage(),
         MeetWaitPage.id: (context) => MeetWaitPage(),
         AgendaPage.id: (context) => AgendaPage(),

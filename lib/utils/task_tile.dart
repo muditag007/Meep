@@ -1,11 +1,29 @@
-// ignore_for_file: prefer_const_constructors, unused_local_variable
+// ignore_for_file: prefer_const_constructors, unused_local_variable, unnecessary_string_interpolations
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/utils/constants.dart';
 
 class TaskTile extends StatefulWidget {
-  const TaskTile({super.key});
+  final String title;
+  final String taskTitle;
+  final String personal;
+  final String deadline;
+  final bool complete;
+  final int agendaNum;
+  final int taskNum;
+
+  const TaskTile({
+    super.key,
+    required this.title,
+    required this.taskTitle,
+    required this.personal,
+    required this.deadline,
+    required this.complete,
+    required this.agendaNum,
+    required this.taskNum,
+  });
 
   @override
   State<TaskTile> createState() => _TaskTileState();
@@ -16,6 +34,12 @@ class _TaskTileState extends State<TaskTile> {
   bool complete = false;
 
   @override
+  void initState() {
+    complete = widget.complete;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
@@ -24,9 +48,12 @@ class _TaskTileState extends State<TaskTile> {
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         onTap: () {
-          setState(() {
-            markDoneVisible = !markDoneVisible;
-          });
+          // setState(() {
+          //   markDoneVisible = !markDoneVisible;
+          // });
+          SchedulerBinding.instance.addPostFrameCallback((_) => setState(() {
+                markDoneVisible = !markDoneVisible;
+              }));
         },
         child: AnimatedContainer(
           width: 318 / 360 * MediaQuery.of(context).size.width,
@@ -64,7 +91,7 @@ class _TaskTileState extends State<TaskTile> {
                       ),
                       child: Center(
                         child: Text(
-                          "1.1",
+                          "${widget.agendaNum}.${widget.taskNum}",
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -78,7 +105,7 @@ class _TaskTileState extends State<TaskTile> {
                     ),
                     Flexible(
                       child: Text(
-                        "\"Updation of all names in the spreadsheet\"",
+                        "\"${widget.taskTitle}\"",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -107,7 +134,7 @@ class _TaskTileState extends State<TaskTile> {
                       ),
                       child: Center(
                         child: Text(
-                          "1",
+                          "${widget.agendaNum}",
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -121,7 +148,7 @@ class _TaskTileState extends State<TaskTile> {
                     ),
                     Flexible(
                       child: Text(
-                        "\"Sponsorships for Upcoming Events\"",
+                        "\"${widget.title}\"",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -151,7 +178,7 @@ class _TaskTileState extends State<TaskTile> {
                     ),
                     Flexible(
                       child: Text(
-                        "@Rahul, @Khwaab",
+                        "${widget.personal}",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w400,
@@ -181,7 +208,7 @@ class _TaskTileState extends State<TaskTile> {
                     ),
                     Flexible(
                       child: Text(
-                        "28th Dec'22",
+                        "${widget.deadline}",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
@@ -236,9 +263,16 @@ class _TaskTileState extends State<TaskTile> {
                   Material(
                     child: InkWell(
                       onTap: () {
-                        setState(() {
-                          complete = !complete;
-                        });
+                        // setState(() {
+                        //   complete = !complete;
+                        // });
+                        SchedulerBinding.instance
+                                                          .addPostFrameCallback(
+                                                              (_) =>
+                                                                  setState(() {
+                                                                    complete =
+                                                                        !complete;
+                                                                  }));
                       },
                       child: Container(
                         height: 28 / 800 * MediaQuery.of(context).size.height,
@@ -259,7 +293,7 @@ class _TaskTileState extends State<TaskTile> {
                         ),
                       ),
                     ),
-                  )
+                  ),
               ],
             ),
           ),

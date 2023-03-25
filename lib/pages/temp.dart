@@ -180,7 +180,14 @@ class _TempState extends State<Temp> {
                               splashColor: Colors.transparent,
                               highlightColor: Colors.transparent,
                               onTap: () {
-                                Navigator.pushNamed(context, MeetingDetails.id);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MeetingDetails(
+                                      id: 'id',
+                                    ),
+                                  ),
+                                );
                               },
                               child: Container(
                                 width: 317 /

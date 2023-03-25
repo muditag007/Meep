@@ -3,12 +3,13 @@
 import 'package:flutter/material.dart';
 
 class MeetTile extends StatelessWidget {
-  const MeetTile(
-      {super.key,
-      required this.name,
-      required this.date,
-      required this.time,
-      required this.team});
+  const MeetTile({
+    super.key,
+    required this.name,
+    required this.date,
+    required this.time,
+    required this.team,
+  });
   final String name;
   final String date;
   final String time;
@@ -38,8 +39,8 @@ class MeetTile extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: 18.0/360*MediaQuery.of(context).size.width,
-            vertical: 11/800*MediaQuery.of(context).size.height,
+            horizontal: 18.0 / 360 * MediaQuery.of(context).size.width,
+            vertical: 11 / 800 * MediaQuery.of(context).size.height,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -68,7 +69,7 @@ class MeetTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    date,
+                    date.toString().substring(0, 10),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

@@ -157,7 +157,15 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                         SizedBox(
                           height: 12 / 800 * MediaQuery.of(context).size.height,
                         ),
-                        TaskTile(),
+                        TaskTile(
+                          agendaNum: 0,
+                          complete: false,
+                          deadline: '',
+                          personal: '',
+                          taskNum: 0,
+                          taskTitle: '',
+                          title: '',
+                        ),
                         SizedBox(
                           height: 12 / 800 * MediaQuery.of(context).size.height,
                         ),

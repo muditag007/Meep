@@ -380,19 +380,49 @@ class _MomNotificationsState extends State<MomNotifications> {
                                       800 *
                                       MediaQuery.of(context).size.height,
                                 ),
-                                yourTask ? TaskTile() : UpdateTile(),
+                                yourTask
+                                    ? TaskTile(
+                                        agendaNum: 0,
+                                        complete: false,
+                                        deadline: '',
+                                        personal: '',
+                                        taskNum: 0,
+                                        taskTitle: '',
+                                        title: '',
+                                      )
+                                    : UpdateTile(),
                                 SizedBox(
                                   height: 21 /
                                       800 *
                                       MediaQuery.of(context).size.height,
                                 ),
-                                yourTask ? TaskTile() : UpdateTile(),
+                                yourTask
+                                    ? TaskTile(
+                                        agendaNum: 0,
+                                        complete: false,
+                                        deadline: '',
+                                        personal: '',
+                                        taskNum: 0,
+                                        taskTitle: '',
+                                        title: '',
+                                      )
+                                    : UpdateTile(),
                                 SizedBox(
                                   height: 21 /
                                       800 *
                                       MediaQuery.of(context).size.height,
                                 ),
-                                yourTask ? TaskTile() : UpdateTile(),
+                                yourTask
+                                    ? TaskTile(
+                                        agendaNum: 0,
+                                        complete: false,
+                                        deadline: '',
+                                        personal: '',
+                                        taskNum: 0,
+                                        taskTitle: '',
+                                        title: '',
+                                      )
+                                    : UpdateTile(),
                                 SizedBox(
                                   height: 21 /
                                       800 *

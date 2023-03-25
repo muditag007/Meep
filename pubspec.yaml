@@ -35,6 +35,7 @@ dependencies:
   google_fonts: ^4.0.1
   flutter_switch: ^0.3.2
   gradient_borders: ^1.0.0
+  google_sign_in: ^6.0.2
 
 
 

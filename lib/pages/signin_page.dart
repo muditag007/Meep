@@ -1,7 +1,12 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_element, unused_import, depend_on_referenced_packages, avoid_print, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:meep/pages/home_page.dart';
 import 'package:meep/utils/constants.dart';
+import 'dart:async';
+import 'dart:convert' show json;
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -12,6 +17,51 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   bool signup = false;
+
+  // final GoogleSignIn _googleSignIn = GoogleSignIn(
+  //   scopes: ['email', 'https://www.googleapis.com/auth/contacts.readonly'],
+  //   serverClientId:
+  //       '499911003588-q4blg14pu20q4rqu4kvm4ae38nrjfkeh.apps.googleusercontent.com',
+  // );
+  Future<void> _handleSignIn() async {
+    try {
+      // final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      // final GoogleSignInAuthentication googleAuth =
+      //     await googleUser!.authentication;
+
+      // print(googleAuth.accessToken);
+
+      Map json1 = {
+        'name': 'Mudit',
+        'email': 'mudit@gmail.com',
+        'picture': 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+      };
+      print(json1);
+      print(json.encode(json1));
+
+      // Map
+      // Send the access token to your backend server
+      final response = await http.post(
+        Uri.parse('https://meep-nine.vercel.app/signup'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      // Handle the server's response
+      if (response.statusCode == 200) {
+        // Success
+        print('Authentication successful ${response.body}');
+      } else {
+        // Error
+        print(
+            'Authentication error: ${response.reasonPhrase} ${response.statusCode} ${response.headers}');
+      }
+    } catch (error) {
+      // Handle sign-in errors
+      print('Sign-in error: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -238,7 +288,8 @@ class _SignInPageState extends State<SignInPage> {
                               Material(
                                 color: Colors.transparent,
                                 child: InkWell(
-                                  onTap: () {
+                                  onTap: () async {
+                                    await _handleSignIn();
                                     Navigator.pushNamed(context, HomePage.id);
                                   },
                                   hoverColor: Colors.transparent,
