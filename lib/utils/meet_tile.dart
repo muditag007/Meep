@@ -69,7 +69,9 @@ class MeetTile extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    date.toString().substring(0, 10),
+                    date.length > 10
+                        ? date.toString().substring(0, 10)
+                        : date.toString(),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:meep/pages/agenda_page.dart';
 import 'package:meep/pages/home_page.dart';
 import 'package:meep/pages/meet_timer_page.dart';
@@ -11,14 +12,19 @@ import 'package:meep/pages/previous_meet_page.dart';
 import 'package:meep/pages/profile_page.dart';
 import 'package:meep/pages/signin_page.dart';
 import 'package:meep/pages/temp.dart';
+import 'package:meep/pages/waiting_page.dart';
+import 'package:meep/pages/webview_page.dart';
 import 'package:meep/utils/constants.dart';
+import 'package:meep/utils/login_controller.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  final controller = Get.put(LoginController());
 
   // This widget is the root of your application.
   @override
@@ -36,19 +42,22 @@ class MyApp extends StatelessWidget {
       initialRoute: SignInPage.id,
       // initialRoute: Temp.id,
       routes: {
-        MeetTimerPage.id:(context) => MeetTimerPage(),
-        SignInPage.id:(context) => SignInPage(),
+        // WebViewPage.id:(context) => WebViewPage(),
+        MeetTimerPage.id: (context) => MeetTimerPage(),
+        // WaitingPage.id:(context) => WaitingPage(),
+        SignInPage.id: (context) => SignInPage(),
         Temp.id: (context) => Temp(),
-        ProfilePage.id:(context) => ProfilePage(),
-        MomNotifications.id:(context) => MomNotifications(),
-        HomePage.id:(context) => HomePage(),
+        ProfilePage.id: (context) => ProfilePage(),
+        MomNotifications.id: (context) => MomNotifications(),
+        HomePage.id: (context) => HomePage(),
         // MeetingDetails.id:(context) => MeetingDetails(),
         PreviousMeetPage.id: (context) => PreviousMeetPage(),
-        MeetWaitPage.id: (context) => MeetWaitPage(),
-        AgendaPage.id: (context) => AgendaPage(),
+        // MeetWaitPage.id: (context) => MeetWaitPage(),
+        // AgendaPage.id: (context) => AgendaPage(),
       },
     );
   }
 }
 
 //360x800
+

@@ -1,26 +1,198 @@
-// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, unused_element, avoid_print, unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/utils/agenda_form.dart';
 import 'package:meep/utils/agenda_form_complex.dart';
+import 'package:meep/utils/agenda_task.dart';
 import 'package:meep/utils/constants.dart';
+import 'package:meep/utils/login_controller.dart';
 import 'package:meep/utils/summary_tile.dart';
 import 'package:meep/utils/task_tile.dart';
 import 'package:meep/utils/task_tile_complex.dart';
+import 'dart:convert' show json;
+import 'package:http/http.dart' as http;
 
 class AgendaPage extends StatefulWidget {
-  const AgendaPage({super.key});
+  const AgendaPage({super.key, required this.meetId});
   static String id = "agendapage";
+  final String meetId;
   @override
   State<AgendaPage> createState() => _AgendaPageState();
 }
 
 class _AgendaPageState extends State<AgendaPage> {
+  LoginController controller = Get.put(LoginController());
+  String meetName = '';
+  List<dynamic> agendasList = [];
+  List<Widget> agendasWidget = [];
+  List<bool> completedAgendas = [];
+
+  Future<void> _handleMeetName() async {
+    try {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/meetings/details/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+      // print(json.decode(response.body));
+      meetName = json.decode(response.body)['title'];
+      // preId = json.decode(response.body)['previous_meeting'];
+      // _handleTasks();
+      if (response.statusCode == 200) {
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  Future<void> _handleAgendas() async {
+    try {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/agendas/details/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      agendasList = json.decode(response.body);
+      agendasWidget = [];
+      print(agendasList);
+      int k = 0;
+      for (int i = 0; i < agendasList.length; i++) {
+        if (agendasList[i]['summary'] == null) {
+          if (i == k) {
+            agendasWidget.add(
+              AgendaForm(
+                agenda: agendasList[i]['title'],
+                desc: agendasList[i]['description'],
+                agendaNum: agendasList[i]['agenda_num'].toString(),
+                agendaId: agendasList[i]['_id'],
+              ),
+            );
+          } else {
+            agendasWidget.add(
+              SummaryTile(
+                summaryShort: true,
+                agenda: agendasList[i]['title'],
+                desc: agendasList[i]['description'],
+                summary: '',
+                agenda_num: agendasList[i]['agenda_num'].toString(),
+              ),
+            );
+          }
+        } else {
+          final taskRes = await http.post(
+            Uri.parse(
+                'https://meep-nine.vercel.app/tasks/${agendasList[i]['_id']}'),
+            body: json.encode(json1),
+            headers: {"Content-Type": "application/json"},
+          );
+          print("hellovrkvbrjv");
+          print(json.decode(taskRes.body));
+          agendasWidget.add(
+            AgendaTask(
+              agendaNum: agendasList[i]['agenda_num'].toString(),
+              agenda: agendasList[i]['title'],
+              task: 'task',
+              desc: agendasList[i]['description'],
+              summary: agendasList[i]['summary'],
+              personnel: '',
+              deadline: '',
+              taskNum: '',
+            ),
+          );
+          k++;
+        }
+
+        if (i != agendasList.length - 1) {
+          agendasWidget.add(
+            SizedBox(
+              height: 18,
+            ),
+          );
+        }
+        completedAgendas.add(false);
+      }
+
+      print(json.decode(response.body));
+
+      if (response.statusCode == 200) {
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  @override
+  void initState() {
+    _handleAgendas();
+    super.initState();
+  }
+
   int agendas = 0;
   List<Widget> list = [];
   @override
   Widget build(BuildContext context) {
+    Widget leaveDialog = Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        height: 220 / 800 * MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            // ignore: prefer_const_literals_to_create_immutables
+            children: [
+              Text(
+                "Are you sure you want to end this Meeting?",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
     return Scaffold(
       backgroundColor: Color.fromRGBO(245, 245, 245, 1),
       body: Padding(
@@ -31,7 +203,7 @@ class _AgendaPageState extends State<AgendaPage> {
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
                   onPressed: () {},
@@ -44,46 +216,55 @@ class _AgendaPageState extends State<AgendaPage> {
                 SizedBox(
                   width: 7,
                 ),
-                Text(
-                  "Meeting Name",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: kGrey,
-                  ),
+                FutureBuilder(
+                  future: _handleMeetName(),
+                  builder: (context, snapshot) {
+                    return Text(
+                      meetName,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: kGrey,
+                      ),
+                    );
+                  },
                 ),
                 SizedBox(
                   width: 15,
                 ),
-                Container(
-                  height: 29 / 800 * MediaQuery.of(context).size.height,
-                  width: 72 / 360 * MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: kGreen,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
-                      "00:00",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                Row(
+                  children: [
+                    Container(
+                      height: 29 / 800 * MediaQuery.of(context).size.height,
+                      width: 72 / 360 * MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: kGreen,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "00:00",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                SizedBox(
-                  width: 7,
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    IconlyBold.user_2,
-                    size: 24,
-                    color: kGrey,
-                  ),
-                ),
+                    SizedBox(
+                      width: 7,
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(
+                        IconlyBold.user_2,
+                        size: 24,
+                        color: kGrey,
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
             Expanded(
@@ -117,37 +298,30 @@ class _AgendaPageState extends State<AgendaPage> {
                     SizedBox(
                       height: 11 / 800 * MediaQuery.of(context).size.height,
                     ),
-                    // Expanded(
-                    //   child: ListView.builder(
-                    //     itemBuilder: (context, index) {
-                    //       return Column(
-                    //         children: [
-                    //           AgendaForm(),
-                    //           SizedBox(
-                    //             height:
-                    //                 16 / 800 * MediaQuery.of(context).size.height,
-                    //           ),
-                    //         ],
-                    //       );
-                    //     },
-                    //     itemCount: agendas,
-                    //   ),
-                    // ),
-                    ...list,
-                    // AgendaForm(),
-                    // SizedBox(
-                    //   height: 16 / 800 * MediaQuery.of(context).size.height,
-                    // ),
-                    // AgendaForm(),
-                    // SizedBox(
-                    //   height: 16 / 800 * MediaQuery.of(context).size.height,
-                    // ),
-                    SummaryTile(
-                      summaryShort: true,
+                    FutureBuilder(
+                      future: _handleAgendas(),
+                      builder: (context, snapshot) {
+                        return Column(
+                          children: agendasWidget,
+                        );
+                      },
                     ),
+                    // SummaryTile(
+                    //   summaryShort: false,
+                    // ),
                     SizedBox(
                       height: 16,
                     ),
+                    // AgendaTask(
+                    //   agendaNum: '',
+                    //   agenda: '',
+                    //   task: '',
+                    //   desc: '',
+                    //   summary: '',
+                    //   personnel: '',
+                    //   deadline: '',
+                    //   taskNum: '',
+                    // ),
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -202,7 +376,111 @@ class _AgendaPageState extends State<AgendaPage> {
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          showGeneralDialog(
+                            context: context,
+                            barrierColor: Colors.black54,
+                            barrierDismissible: true,
+                            barrierLabel: 'Label',
+                            pageBuilder: (_, __, ___) {
+                              return Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  height: 220 /
+                                      800 *
+                                      MediaQuery.of(context).size.height,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 20,
+                                      horizontal: 20,
+                                    ),
+                                    child: Column(
+                                      // ignore: prefer_const_literals_to_create_immutables
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                          ),
+                                          child: Text(
+                                            "Are you sure you want to end this Meeting?",
+                                            style: TextStyle(
+                                              fontFamily: 'Proxima Nova',
+                                              decoration: TextDecoration.none,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                        Container(
+                                          height: 50,
+                                          width: 320,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            border: Border.all(
+                                              width: 2,
+                                              color: kPurple,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "Discuss Another Agenda",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w800,
+                                                color: kPurple,
+                                                fontFamily: 'Proxima Nova',
+                                                decoration: TextDecoration.none,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          height: 50,
+                                          width: 320,
+                                          decoration: BoxDecoration(
+                                            color: kPurple,
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            border: Border.all(
+                                              width: 2,
+                                              color: kPurple,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "Confirm Conclusion",
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Colors.white,
+                                                  fontFamily: 'Proxima Nova',
+                                                  decoration:
+                                                      TextDecoration.none),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
                         hoverColor: Colors.transparent,
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,

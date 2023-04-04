@@ -8,8 +8,15 @@ class SummaryTile extends StatelessWidget {
   const SummaryTile({
     super.key,
     required this.summaryShort,
+    required this.agenda,
+    required this.desc,
+    required this.summary, required this.agenda_num,
   });
   final bool summaryShort;
+  final String agenda;
+  final String desc;
+  final String summary;
+  final String agenda_num;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +60,7 @@ class SummaryTile extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      "1",
+                      agenda_num,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -67,7 +74,7 @@ class SummaryTile extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    "\"Sponsorships for Upcoming Events\"",
+                    "\"$agenda\"",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -97,13 +104,13 @@ class SummaryTile extends StatelessWidget {
                 ),
                 Flexible(
                   child: Text(
-                    "\"There is an urgent need to come up with sponsors to be able to organise events.\"",
+                    "\"$desc\"",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
                       color: kGrey,
                     ),
-                    maxLines: 4,
+                    maxLines: 40,
                     softWrap: false,
                     overflow: TextOverflow.ellipsis,
                     // textDirection: TextDirection.ltr,
@@ -130,7 +137,7 @@ class SummaryTile extends StatelessWidget {
                       ),
                       Flexible(
                         child: Text(
-                          "\"Lorem ipsum dolor sit amet consectetur. Purus arcu enim viverra eget egestas faucibus viverra. Purus sit massa id odio odio sollicitudin at. Interdum suspendisse est felis ultrices at cursus ullamcorper. Semper turpis posuere vivamus quis non quam urna ut in.\"",
+                          "\"$summary\"",
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w400,

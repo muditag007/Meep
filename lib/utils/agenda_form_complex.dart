@@ -13,7 +13,11 @@ class AgendaFormComplex extends StatefulWidget {
 
 class _AgendaFormComplexState extends State<AgendaFormComplex> {
   bool appoint = true;
-  TextEditingController _control = new TextEditingController();
+  TextEditingController _summary = new TextEditingController();
+  TextEditingController _agenda = new TextEditingController();
+  TextEditingController _desc = new TextEditingController();
+  TextEditingController _task = new TextEditingController();
+  TextEditingController _personnel = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -91,31 +95,10 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                   height: 32,
                   width: 248,
                   child: TextField(
-                    controller: _control,
+                    controller: _agenda,
                     cursorColor: kGrey,
-                    decoration: InputDecoration(
-                      labelStyle: TextStyle(color: Colors.black),
-                      hintText: 'Agenda',
-                      hintStyle: TextStyle(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.w700,
-                        color: kWhite,
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 10.0,
-                        horizontal: 20.0,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: kWhite, width: 2.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: kWhite, width: 2.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      ),
+                    decoration: kTextField.copyWith(
+                      hintText: "Agenda",
                     ),
                     style: TextStyle(
                       fontSize: 12.0,
@@ -166,32 +149,10 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                   height: 32,
                   width: 248,
                   child: TextField(
-                    controller: _control,
+                    controller: _desc,
                     cursorColor: kGrey,
-                    decoration: InputDecoration(
-                      labelStyle: TextStyle(color: Colors.black),
-                      hintText: 'Agenda Description',
-                      hintStyle: TextStyle(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.w700,
-                        color: kWhite,
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 10.0,
-                        horizontal: 20.0,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: kWhite, width: 2.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: kWhite, width: 2.0),
-                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      ),
-                    ),
+                    decoration:
+                        kTextField.copyWith(hintText: "Agenda Description"),
                     style: TextStyle(
                       fontSize: 12.0,
                       fontWeight: FontWeight.w700,
@@ -215,7 +176,7 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                     onTap: () {
                       setState(() {
                         appoint = true;
-                        _control.text = '';
+                        // _control.text = '';
                       });
                     },
                     hoverColor: Colors.transparent,
@@ -250,7 +211,7 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                     onTap: () {
                       setState(() {
                         appoint = false;
-                        _control.text = '';
+                        // _control.text = '';
                       });
                     },
                     hoverColor: Colors.transparent,
@@ -328,37 +289,10 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                             height: 32,
                             width: 248,
                             child: TextField(
-                              controller: _control,
+                              controller: _task,
                               cursorColor: kGrey,
-                              decoration: InputDecoration(
-                                labelStyle: TextStyle(color: Colors.black),
-                                hintText: 'Describe the task',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                              ),
+                              decoration: kTextField.copyWith(
+                                  hintText: "Describe the task"),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -402,36 +336,10 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                             height: 32,
                             width: 248,
                             child: TextField(
+                              controller: _personnel,
                               cursorColor: kGrey,
-                              decoration: InputDecoration(
-                                labelStyle: TextStyle(color: Colors.black),
-                                hintText: '@name',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                              ),
+                              decoration:
+                                  kTextField.copyWith(hintText: "@name"),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -476,34 +384,8 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                             width: 248,
                             child: TextField(
                               cursorColor: kGrey,
-                              decoration: InputDecoration(
-                                labelStyle: TextStyle(color: Colors.black),
-                                hintText: 'DD/MM/YY',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
+                              decoration: kTextField.copyWith(
+                                hintText: "DD/MM/YY",
                                 suffixIcon: Icon(
                                   IconlyLight.calendar,
                                   color: kWhite,
@@ -574,46 +456,15 @@ class _AgendaFormComplexState extends State<AgendaFormComplex> {
                             height: 156,
                             width: 248,
                             child: TextField(
-                              controller: _control,
+                              controller: _summary,
                               maxLines: null,
                               textAlign: TextAlign.start,
                               textAlignVertical: TextAlignVertical.top,
                               expands: true,
                               cursorColor: kGrey,
                               keyboardType: TextInputType.multiline,
-                              decoration: InputDecoration(
-                                // floatingLabelBehavior:
-                                // FloatingLabelBehavior.never,
-                                // hintTextDirection: TextDirection.rtl,
-                                // filled: true,
-                                // labelStyle: TextStyle(color: Colors.black),
-                                hintText: 'Summarise the Agenda',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                              ),
+                              decoration: kTextField.copyWith(
+                                  hintText: "Summarise the Agenda"),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "357289784878",
+    "project_id": "meep-55672",
+    "storage_bucket": "meep-55672.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357289784878:android:ad0a9377c40c69d8cad1bf",
+        "android_client_info": {
+          "package_name": "com.example.meep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357289784878-7ga4vadcmsr2d53p3kqn8o7p83nl8kdc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.meep",
+            "certificate_hash": "036a436a93981c723899c68a3e4376354ad1e54d"
+          }
+        },
+        {
+          "client_id": "357289784878-hqjs75cup17f1ls2k91jkp1hve4ogtuf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb-fvHxoHugzReb9uyqThBppN-Uy8cGls"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357289784878-hqjs75cup17f1ls2k91jkp1hve4ogtuf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

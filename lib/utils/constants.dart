@@ -17,4 +17,29 @@ BoxShadow kShadow = BoxShadow(
   color: Color.fromRGBO(69, 68, 68, 0.32),
 );
 
+InputDecoration kTextField = InputDecoration(
+  labelStyle: TextStyle(color: Colors.black),
+  hintText: 'Agenda',
+  hintStyle: TextStyle(
+    fontSize: 12.0,
+    fontWeight: FontWeight.w700,
+    color: kWhite,
+  ),
+  contentPadding: EdgeInsets.symmetric(
+    vertical: 10.0,
+    horizontal: 20.0,
+  ),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(10)),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: kWhite, width: 2.0),
+    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderSide: BorderSide(color: kWhite, width: 2.0),
+    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+  ),
+);
+
 // double kWidth = MediaQuery.of(context).size.width;

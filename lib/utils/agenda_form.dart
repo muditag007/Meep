@@ -1,19 +1,115 @@
-// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new, prefer_final_fields, unused_field
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new, prefer_final_fields, unused_field, unused_element, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/utils/constants.dart';
+import 'dart:convert' show json;
+import 'package:http/http.dart' as http;
+import 'package:meep/utils/login_controller.dart';
 
 class AgendaForm extends StatefulWidget {
-  const AgendaForm({super.key});
+  final String agenda;
+  final String desc;
+  final String agendaNum;
+  final String agendaId;
+  const AgendaForm(
+      {super.key,
+      required this.agenda,
+      required this.desc,
+      required this.agendaNum,
+      required this.agendaId});
 
   @override
   State<AgendaForm> createState() => _AgendaFormState();
 }
 
 class _AgendaFormState extends State<AgendaForm> {
+  LoginController controller = Get.put(LoginController());
+
+  Future<void> _handleAppoint() async {
+    try {
+      // Map<String, Map> json1 = {
+      //   'task': {
+      //     "title": _task.text,
+      //     "personnel": _personnel.text,
+      //     "deadline": _deadline.text,
+      //   }
+      // };
+
+      Map<String, Map> json1 = {
+        "task": {
+          "title": "Task API",
+          "personnel": ["fake@gmail.com"],
+          "deadline": "2023-04-02 14:16:16.205"
+        }
+      };
+
+      print(json.encode(json1));
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/add/task/${widget.agendaId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      print(
+        json.decode(response.body),
+      );
+      // print(json.decode(response.body));
+      // meetName = json.decode(response.body)['title'];
+      // preId = json.decode(response.body)['previous_meeting'];
+      // _handleTasks();
+      if (response.statusCode == 200) {
+        print("teri behen ki");
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  Future<void> _handleSummary() async {
+    try {
+      Map<String, Map> json1 = {
+        'task': {
+          "summary": _summary.text,
+        }
+      };
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/set/summary/${widget.agendaId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      print(
+        json.decode(response.body),
+      );
+      // print(json.decode(response.body));
+      // meetName = json.decode(response.body)['title'];
+      // preId = json.decode(response.body)['previous_meeting'];
+      // _handleTasks();
+      if (response.statusCode == 200) {
+        print("teri maa nhi h kya");
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
   bool appoint = true;
-  TextEditingController _control = new TextEditingController();
+  TextEditingController _task = new TextEditingController();
+  TextEditingController _personnel = new TextEditingController();
+  TextEditingController _deadline = new TextEditingController();
+  TextEditingController _summary = new TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -52,7 +148,7 @@ class _AgendaFormState extends State<AgendaForm> {
                   ),
                   child: Center(
                     child: Text(
-                      "1",
+                      widget.agendaNum,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
@@ -66,7 +162,7 @@ class _AgendaFormState extends State<AgendaForm> {
                 ),
                 Flexible(
                   child: Text(
-                    "\"Updation of all names in the spreadsheet\"",
+                    "\"${widget.agenda}\"",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -96,13 +192,13 @@ class _AgendaFormState extends State<AgendaForm> {
                 ),
                 Flexible(
                   child: Text(
-                    "\"There is an urgent need to come up with sponsors to be able to organise events.\"",
+                    "\"${widget.desc}\"",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
                       color: kGrey,
                     ),
-                    maxLines: 4,
+                    maxLines: 40,
                     softWrap: false,
                     overflow: TextOverflow.ellipsis,
                     // textDirection: TextDirection.ltr,
@@ -124,7 +220,7 @@ class _AgendaFormState extends State<AgendaForm> {
                     onTap: () {
                       setState(() {
                         appoint = true;
-                        _control.text = '';
+                        // _control.text = '';
                       });
                     },
                     hoverColor: Colors.transparent,
@@ -159,7 +255,7 @@ class _AgendaFormState extends State<AgendaForm> {
                     onTap: () {
                       setState(() {
                         appoint = false;
-                        _control.text = '';
+                        // _control.text = '';
                       });
                     },
                     hoverColor: Colors.transparent,
@@ -205,7 +301,7 @@ class _AgendaFormState extends State<AgendaForm> {
                             ),
                             child: Center(
                               child: Text(
-                                "1.1",
+                                "${widget.agendaNum}.1",
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w900,
@@ -237,37 +333,10 @@ class _AgendaFormState extends State<AgendaForm> {
                             height: 32,
                             width: 248,
                             child: TextField(
-                              controller: _control,
+                              controller: _task,
                               cursorColor: kGrey,
-                              decoration: InputDecoration(
-                                labelStyle: TextStyle(color: Colors.black),
-                                hintText: 'Describe the task',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                              ),
+                              decoration: kTextField.copyWith(
+                                  hintText: "Describe the task"),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -311,36 +380,10 @@ class _AgendaFormState extends State<AgendaForm> {
                             height: 32,
                             width: 248,
                             child: TextField(
+                              controller: _personnel,
                               cursorColor: kGrey,
-                              decoration: InputDecoration(
-                                labelStyle: TextStyle(color: Colors.black),
-                                hintText: '@name',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                              ),
+                              decoration:
+                                  kTextField.copyWith(hintText: "@name"),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -384,35 +427,10 @@ class _AgendaFormState extends State<AgendaForm> {
                             height: 32,
                             width: 248,
                             child: TextField(
+                              controller: _deadline,
                               cursorColor: kGrey,
-                              decoration: InputDecoration(
-                                labelStyle: TextStyle(color: Colors.black),
-                                hintText: 'DD/MM/YY',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
+                              decoration: kTextField.copyWith(
+                                hintText: "DD/MM/YY",
                                 suffixIcon: Icon(
                                   IconlyLight.calendar,
                                   color: kWhite,
@@ -431,20 +449,32 @@ class _AgendaFormState extends State<AgendaForm> {
                       SizedBox(
                         height: 15,
                       ),
-                      Container(
-                        height: 30,
-                        width: 110,
-                        decoration: BoxDecoration(
-                          color: kPurple,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Appoint",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                      InkWell(
+                        onTap: () {
+                          if (_task.text != '' &&
+                              _personnel.text != '' &&
+                              _deadline.text != '') {
+                            _handleAppoint();
+                            setState(() {
+                              appoint = false;
+                            });
+                          }
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 110,
+                          decoration: BoxDecoration(
+                            color: kPurple,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Appoint",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
@@ -483,46 +513,15 @@ class _AgendaFormState extends State<AgendaForm> {
                             height: 156,
                             width: 248,
                             child: TextField(
-                              controller: _control,
+                              controller: _summary,
                               maxLines: null,
                               textAlign: TextAlign.start,
                               textAlignVertical: TextAlignVertical.top,
                               expands: true,
                               cursorColor: kGrey,
                               keyboardType: TextInputType.multiline,
-                              decoration: InputDecoration(
-                                // floatingLabelBehavior:
-                                // FloatingLabelBehavior.never,
-                                // hintTextDirection: TextDirection.rtl,
-                                // filled: true,
-                                // labelStyle: TextStyle(color: Colors.black),
-                                hintText: 'Summarise the Agenda',
-                                hintStyle: TextStyle(
-                                  fontSize: 12.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: kWhite,
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 20.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: kWhite, width: 2.0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                              ),
+                              decoration: kTextField.copyWith(
+                                  hintText: "Summarise the Agenda"),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -535,20 +534,27 @@ class _AgendaFormState extends State<AgendaForm> {
                       SizedBox(
                         height: 15,
                       ),
-                      Container(
-                        height: 30,
-                        width: 110,
-                        decoration: BoxDecoration(
-                          color: kPurple,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Moving on",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                      InkWell(
+                        onTap: () {
+                          if (_summary.text != '') {
+                            _handleSummary();
+                          }
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 110,
+                          decoration: BoxDecoration(
+                            color: kPurple,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Moving on",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),

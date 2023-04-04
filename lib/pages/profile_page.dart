@@ -1,13 +1,16 @@
-// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, unused_element, unused_import, depend_on_referenced_packages, prefer_if_null_operators
+// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, unused_element, unused_import, depend_on_referenced_packages, prefer_if_null_operators, avoid_print
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:iconly/iconly.dart';
+import 'package:meep/pages/signin_page.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
+import 'package:meep/utils/login_controller.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -19,13 +22,25 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> profileResponse = {};
 
+  final controller = Get.put(LoginController());
+
   Future<void> _handleProfile() async {
     try {
-      Map json1 = {
-        'name': 'Mudit',
-        'email': 'mudit@gmail.com',
-        'picture':
-            'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+      // Map json1 = {
+      //   'name': 'Mudit',
+      //   'email': 'mudit@gmail.com',
+      //   'picture':
+      //       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+      // };
+      
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
       };
 
       final response = await http.post(
@@ -33,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
         body: json.encode(json1),
         headers: {"Content-Type": "application/json"},
       );
-
+      
       profileResponse = json.decode(response.body);
       print(profileResponse);
       host = profileResponse['isHost'];
@@ -290,46 +305,53 @@ class _ProfilePageState extends State<ProfilePage> {
                             Expanded(child: Container()),
                             Align(
                               alignment: Alignment.centerLeft,
-                              child: Container(
-                                height: 45 /
-                                    800 *
-                                    MediaQuery.of(context).size.height,
-                                width: 250 /
-                                    360 *
-                                    MediaQuery.of(context).size.width,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  color: Colors.white,
-                                  border: Border.all(
-                                    color: Color.fromRGBO(203, 203, 203, 1),
-                                    width: 1,
+                              child: InkWell(
+                                onTap: () {
+                                  controller.logout();
+                                  Navigator.pushNamed(context, SignInPage.id);
+                                },
+                                child: Container(
+                                  height: 45 /
+                                      800 *
+                                      MediaQuery.of(context).size.height,
+                                  width: 250 /
+                                      360 *
+                                      MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color: Color.fromRGBO(203, 203, 203, 1),
+                                      width: 1,
+                                    ),
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 21 /
-                                        360 *
-                                        MediaQuery.of(context).size.width,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    // ignore: prefer_const_literals_to_create_immutables
-                                    children: [
-                                      Text(
-                                        "Log Out",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w400,
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 21 /
+                                          360 *
+                                          MediaQuery.of(context).size.width,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      // ignore: prefer_const_literals_to_create_immutables
+                                      children: [
+                                        Text(
+                                          "Log Out",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w400,
+                                            color: Color.fromRGBO(
+                                                154, 154, 154, 1),
+                                          ),
+                                        ),
+                                        Icon(
+                                          IconlyLight.logout,
                                           color:
                                               Color.fromRGBO(154, 154, 154, 1),
-                                        ),
-                                      ),
-                                      Icon(
-                                        IconlyLight.logout,
-                                        color: Color.fromRGBO(154, 154, 154, 1),
-                                      )
-                                    ],
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, avoid_unnecessary_containers, sort_child_properties_last, unused_element, avoid_print, unused_local_variable, prefer_if_null_operators
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/pages/meeting_details.dart';
 import 'package:meep/pages/mom_notifications.dart';
@@ -8,6 +9,7 @@ import 'package:meep/pages/previous_meet_page.dart';
 import 'package:meep/pages/profile_page.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:meep/utils/count_tile.dart';
+import 'package:meep/utils/login_controller.dart';
 import 'package:meep/utils/meet_tile.dart';
 import 'package:http/http.dart' as http;
 import 'package:meep/utils/upcoming_meet_tile.dart';
@@ -25,15 +27,33 @@ class _HomePageState extends State<HomePage> {
   Map<String, dynamic> homePageRes = {};
   List<Widget> upcomingMeets = [];
   List<Widget> previousMeets = [];
+  final controller = Get.put(LoginController());
 
   Future<void> _handleHomePage() async {
     try {
-      Map json1 = {
-        'name': 'Mudit',
-        'email': 'mudit@gmail.com',
-        'picture':
-            'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+      // Map json1 = {
+      //   'name': 'Mudit',
+      //   'email': 'mudit@gmail.com',
+      //   'picture':
+      //       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
+      // };
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
       };
+      // Map json1 = {
+      //   'displayName':controller.googleAccount.value?.displayName,
+      //   'photoUrl':controller.googleAccount.value?.photoUrl,
+      //   'id':controller.googleAccount.value?.id,
+      //   'email':controller.googleAccount.value?.email,
+      // };
+      // print("jhegfivb");
+      // print(controller.googleAccount.value);
 
       final response = await http.post(
         Uri.parse('https://meep-nine.vercel.app/home'),
@@ -42,7 +62,7 @@ class _HomePageState extends State<HomePage> {
       );
 
       homePageRes = (json.decode(response.body));
-      print(homePageRes['upcoming']);
+      // print(homePageRes['previous']);
       previousMeets = [];
       upcomingMeets = [];
       for (int i = 0; i < homePageRes['previous'].length; i++) {
@@ -103,8 +123,9 @@ class _HomePageState extends State<HomePage> {
               image: AssetImage("images/background.png"), fit: BoxFit.cover),
         ),
         child: FutureBuilder<void>(
-            future: _handleHomePage(),
-            builder: (context, snapshot) {
+          future: _handleHomePage(),
+          builder: (context, snapshot) {
+            if (homePageRes['name'] != null) {
               return CustomScrollView(
                 slivers: [
                   SliverFillRemaining(
@@ -123,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 Text(
                                   homePageRes['name'] != null
-                                      ? "Hello, ${homePageRes['name']}!"
+                                      ? "Hello, ${homePageRes['name'].toString().split(' ')[0]}!"
                                       : "Hello, ...!",
                                   style: TextStyle(
                                     fontSize: 32,
@@ -263,15 +284,6 @@ class _HomePageState extends State<HomePage> {
                                         MediaQuery.of(context).size.height,
                                   ),
                                   ...upcomingMeets,
-                                  // UpcomingMeetTile(
-                                  //   title: homePageRes['upcoming'][0]['title'],
-                                  //   host: homePageRes['upcoming'][0]['host'],
-                                  //   time: homePageRes['upcoming'][0]['time'],
-                                  //   team_name: homePageRes['upcoming'][0]
-                                  //       ['team_name'],
-                                  //   venue: homePageRes['upcoming'][0]['duration']
-                                  //       .toString(),
-                                  // ),
                                   SizedBox(
                                     height: 30 /
                                         800 *
@@ -293,36 +305,6 @@ class _HomePageState extends State<HomePage> {
                                         800 *
                                         MediaQuery.of(context).size.height,
                                   ),
-                                  // MeetTile(
-                                  //   name: "Timeline Discussion",
-                                  //   date: "22nd Oct'22",
-                                  //   time: "20:00",
-                                  //   team: "E-Cell",
-                                  // ),
-                                  // MeetTile(
-                                  //   name: "Timeline Discussion",
-                                  //   date: "22nd Oct'22",
-                                  //   time: "20:00",
-                                  //   team: "E-Cell",
-                                  // ),
-                                  // MeetTile(
-                                  //   name: "Timeline Discussion",
-                                  //   date: "22nd Oct'22",
-                                  //   time: "20:00",
-                                  //   team: "E-Cell",
-                                  // ),
-                                  // MeetTile(
-                                  //   name: "Timeline Discussion",
-                                  //   date: "22nd Oct'22",
-                                  //   time: "20:00",
-                                  //   team: "E-Cell",
-                                  // ),
-                                  // MeetTile(
-                                  //   name: "Timeline Discussion",
-                                  //   date: "22nd Oct'22",
-                                  //   time: "20:00",
-                                  //   team: "E-Cell",
-                                  // ),
                                   ...previousMeets,
                                   Material(
                                     child: InkWell(
@@ -385,8 +367,74 @@ class _HomePageState extends State<HomePage> {
                   )
                 ],
               );
-            }),
+            } else {
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage("images/background.png"),
+                      fit: BoxFit.cover),
+                ),
+                child: Center(
+                  child: Container(
+                    height: 100,
+                    width: 100,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 10,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              );
+            }
+          },
+        ),
       ),
     );
   }
 }
+
+// final double _spacing = 16.0;
+//   late double _baseWidth;
+//   final _colors = [
+//     Colors.greenAccent.shade100,
+//     Colors.pink.shade100,
+//     Colors.amber.shade100,
+//   ];
+
+// _baseWidth = MediaQuery.of(context).size.width > 544
+//         ? 512.0
+//         : MediaQuery.of(context).size.width - 32;
+    
+
+// GestureDetector(
+//                   child: Stack(children: [
+//                     ..._colors.asMap().entries.map(
+//                           (entry) => Positioned(
+//                             top: _spacing * entry.key,
+//                             left: _spacing * (_colors.length - (entry.key + 1)),
+//                             child: InkWell(
+//                               onTap: () {
+//                                 Navigator.pushNamed(context, HomePage.id);
+//                               },
+//                               child: Container(
+//                                 height: 200,
+//                                 width: _baseWidth -
+//                                     (_spacing *
+//                                         (_colors.length - (entry.key + 1)) *
+//                                         2),
+//                                 decoration: BoxDecoration(
+//                                   borderRadius: BorderRadius.circular(16),
+//                                   color: entry.value,
+//                                 ),
+//                               ),
+//                             ),
+//                           ),
+//                         )
+//                   ]),
+//                   onTap: () {
+//                     print("hello");
+//                   },
+//                   onVerticalDragDown: (_) =>
+//                       setState(() => _colors.insert(0, _colors.removeLast())),
+//                 ),
+
