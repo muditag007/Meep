@@ -13,7 +13,6 @@ import 'package:meep/pages/profile_page.dart';
 import 'package:meep/pages/signin_page.dart';
 import 'package:meep/pages/temp.dart';
 import 'package:meep/pages/waiting_page.dart';
-import 'package:meep/pages/webview_page.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:meep/utils/login_controller.dart';
 
@@ -42,18 +41,13 @@ class MyApp extends StatelessWidget {
       initialRoute: SignInPage.id,
       // initialRoute: Temp.id,
       routes: {
-        // WebViewPage.id:(context) => WebViewPage(),
         MeetTimerPage.id: (context) => MeetTimerPage(),
-        // WaitingPage.id:(context) => WaitingPage(),
         SignInPage.id: (context) => SignInPage(),
         Temp.id: (context) => Temp(),
         ProfilePage.id: (context) => ProfilePage(),
         MomNotifications.id: (context) => MomNotifications(),
         HomePage.id: (context) => HomePage(),
-        // MeetingDetails.id:(context) => MeetingDetails(),
         PreviousMeetPage.id: (context) => PreviousMeetPage(),
-        // MeetWaitPage.id: (context) => MeetWaitPage(),
-        // AgendaPage.id: (context) => AgendaPage(),
       },
     );
   }

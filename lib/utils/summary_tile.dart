@@ -10,7 +10,8 @@ class SummaryTile extends StatelessWidget {
     required this.summaryShort,
     required this.agenda,
     required this.desc,
-    required this.summary, required this.agenda_num,
+    required this.summary,
+    required this.agenda_num,
   });
   final bool summaryShort;
   final String agenda;

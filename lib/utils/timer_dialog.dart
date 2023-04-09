@@ -1,14 +1,20 @@
 // ignore_for_file: prefer_const_constructors, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
+import 'package:meep/pages/agenda_page.dart';
 import 'package:meep/pages/meet_wait_page.dart';
 import 'package:meep/utils/constants.dart';
 
 class TimerDialog extends StatelessWidget {
   final String meetId;
+  final bool linked;
   // final String preId;
   // final String meetName;
-  const TimerDialog({super.key, required this.meetId,});
+  const TimerDialog({
+    super.key,
+    required this.meetId,
+    required this.linked,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -236,11 +242,13 @@ class TimerDialog extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MeetWaitPage(
-                      meetId: meetId,
-                      // meetName: '',
-                      // preId: '',
-                    ),
+                    builder: (context) => linked
+                        ? MeetWaitPage(
+                            meetId: meetId,
+                          )
+                        : AgendaPage(
+                            meetId: meetId,
+                          ),
                   ),
                 );
                 // Navigator.pushNamed(context, MeetWaitPage.id);

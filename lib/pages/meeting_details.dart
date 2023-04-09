@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
+import 'package:meep/pages/agenda_page_attendee.dart';
+import 'package:meep/pages/attendee_waiting.dart';
 import 'package:meep/pages/meet_details_agenda.dart';
 import 'package:meep/pages/meet_details_det.dart';
 import 'package:meep/pages/meet_wait_page.dart';
@@ -50,14 +52,14 @@ class _MeetingDetailsState extends State<MeetingDetails>
         //       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
         // };
         Map<String, Map> json1 = {
-        'token': {
-          'displayName': controller.googleAccount.value?.displayName,
-          'photoUrl': controller.googleAccount.value?.photoUrl,
-          'id': controller.googleAccount.value?.id,
-          'email': controller.googleAccount.value?.email,
-          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
-        }
-      };
+          'token': {
+            'displayName': controller.googleAccount.value?.displayName,
+            'photoUrl': controller.googleAccount.value?.photoUrl,
+            'id': controller.googleAccount.value?.id,
+            'email': controller.googleAccount.value?.email,
+            'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+          }
+        };
         final response = await http.post(
           Uri.parse(
               'https://meep-nine.vercel.app/meetings/details/${widget.id}'),
@@ -505,9 +507,13 @@ class _MeetingDetailsState extends State<MeetingDetails>
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WaitingPage(
-                                  meetId: widget.id,
-                                ),
+                                builder: (context) => detailsRes['host'] ==
+                                        controller.googleAccount.value?.email
+                                    ? WaitingPage(
+                                        meetId: widget.id,
+                                        linked:continuation,
+                                      )
+                                    : AgendaPageAttendee(meetId: widget.id),
                               ),
                             );
                           },

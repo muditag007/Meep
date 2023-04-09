@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meep/pages/home_page.dart';
-import 'package:meep/pages/webview_page.dart';
 import 'package:meep/utils/constants.dart';
 import 'dart:async';
 import 'dart:convert' show json;

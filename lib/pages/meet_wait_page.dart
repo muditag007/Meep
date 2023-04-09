@@ -11,6 +11,7 @@ import 'package:meep/utils/task_tile_complex.dart';
 import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:meep/utils/task_tile_normal.dart';
 
 class MeetWaitPage extends StatefulWidget {
   final String meetId;
@@ -34,6 +35,8 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
   List<dynamic> preAgendas = [];
   List<Widget> completed = [];
   List<Widget> incomplete = [];
+  List<Widget> discuss = [];
+  List<Widget> extend = [];
   List<dynamic> preTasks = [];
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
   List<bool> incompleteCheck = [];
@@ -118,7 +121,8 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                     .split(' ')[0];
           }
         }
-        if (preTasks[i]['status'] == 'Incomplete') {
+        if (preTasks[i]['status'] == 'Incomplete' &&
+            preTasks[i]['previous_deadline'] == null) {
           incomplete.add(
             SizedBox(
               height:
@@ -127,13 +131,35 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
           );
           incomplete.add(
             TaskTileComplex(
+              // prevDeadline: '',
               id: preTasks[i]['task_id'],
-              agenda: preAgendas[i]['agenda_title'],
+              agenda: preTasks[i]['agenda_title'],
               deadline: preTasks[i]['deadline'].toString(),
               personnel: per,
               task: preTasks[i]['task_title'],
-              agendaNum: preTasks[i]['agenda_num'],
-              taskNum: preTasks[i]['task_num'],
+              agendaNum: preTasks[i]['agenda_num'].toString(),
+              taskNum: preTasks[i]['task_num'].toString(),
+            ),
+          );
+        } else if (preTasks[i]['status'] == 'Incomplete' &&
+            preTasks[i]['previous_deadline'] != null) {
+          extend.add(
+            SizedBox(
+              height:
+                  (i == 0 ? 12 : 20) / 800 * MediaQuery.of(context).size.height,
+            ),
+          );
+          extend.add(
+            TaskTileNormal(
+              discuss: false,
+              title: preTasks[i]['agenda_title'],
+              taskTitle: preTasks[i]['task_title'],
+              personal: per,
+              deadline: preTasks[i]['deadline'].toString(),
+              complete: false,
+              agendaNum: preTasks[i]['agenda_num'].toString(),
+              taskNum: preTasks[i]['task_num'].toString(),
+              prevDeadline: preTasks[i]['previous_deadline'],
             ),
           );
         } else {
@@ -144,19 +170,23 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
             ),
           );
           completed.add(
-            TaskTile(
+            TaskTileNormal(
               title: preTasks[i]['agenda_title'],
               taskTitle: preTasks[i]['task_title'],
               personal: per,
               deadline: preTasks[i]['deadline'].toString(),
               complete: true,
-              agendaNum: preTasks[i]['agenda_num'],
-              taskNum: preTasks[i]['task_num'],
+              agendaNum: preTasks[i]['agenda_num'].toString(),
+              taskNum: preTasks[i]['task_num'].toString(),
+              discuss: false,
+              prevDeadline: '',
             ),
           );
         }
+        print("idhar");
+        print(extend);
       }
-      
+
       if (response.statusCode == 200) {
         print('Authentication successful');
       } else {
@@ -279,7 +309,9 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                           builder: (context, snapshot) {
                             return Column(
                               children: [
-                                if (incomplete.isNotEmpty)
+                                if (incomplete.isNotEmpty ||
+                                    extend.isNotEmpty ||
+                                    discuss.isNotEmpty)
                                   Row(
                                     children: [
                                       SizedBox(
@@ -296,6 +328,8 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                                     ],
                                   ),
                                 ...incomplete,
+                                ...extend,
+                                ...discuss,
                                 if (incomplete.isNotEmpty)
                                   SizedBox(
                                     height: 30 /
@@ -318,7 +352,18 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                                       ),
                                     ],
                                   ),
-                                ...completed
+                                ...completed,
+                                // TaskTileNormal(
+                                //   title: 'title',
+                                //   taskTitle: '',
+                                //   personal: '',
+                                //   deadline: "nfsvbs",
+                                //   complete: false,
+                                //   agendaNum: "0",
+                                //   taskNum: "0",
+                                //   prevDeadline: "bvsjdvjs",
+                                //   discuss: true,
+                                // ),
                               ],
                             );
                           },
@@ -343,22 +388,26 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                     highlightColor: Colors.transparent,
                     onTap: () {
                       // Navigator.pushNamed(context, AgendaPage.id);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AgendaPage(
-                            meetId: widget.meetId,
-                            // meetName: '',
-                            // preId: '',
+                      if (incomplete.isEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AgendaPage(
+                              meetId: widget.meetId,
+                              // meetName: '',
+                              // preId: '',
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                     child: Container(
                       height: 50 / 800 * MediaQuery.of(context).size.height,
                       width: 317 / 360 * MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
-                        color: kPurple2.withOpacity(0.56),
+                        color: incomplete.isNotEmpty
+                            ? kPurple2.withOpacity(0.56)
+                            : kPurple,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Center(

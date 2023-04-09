@@ -7,18 +7,22 @@ import 'package:meep/utils/constants.dart';
 import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
 import 'package:meep/utils/login_controller.dart';
+import 'package:meep/utils/moving_on.dart';
 
 class AgendaForm extends StatefulWidget {
   final String agenda;
   final String desc;
   final String agendaNum;
   final String agendaId;
-  const AgendaForm(
-      {super.key,
-      required this.agenda,
-      required this.desc,
-      required this.agendaNum,
-      required this.agendaId});
+  final String meetId;
+  const AgendaForm({
+    super.key,
+    required this.agenda,
+    required this.desc,
+    required this.agendaNum,
+    required this.agendaId,
+    required this.meetId,
+  });
 
   @override
   State<AgendaForm> createState() => _AgendaFormState();
@@ -26,6 +30,8 @@ class AgendaForm extends StatefulWidget {
 
 class _AgendaFormState extends State<AgendaForm> {
   LoginController controller = Get.put(LoginController());
+  List<String> tagging = [];
+  List<String> emailPersons = [];
 
   Future<void> _handleAppoint() async {
     try {
@@ -57,12 +63,7 @@ class _AgendaFormState extends State<AgendaForm> {
       print(
         json.decode(response.body),
       );
-      // print(json.decode(response.body));
-      // meetName = json.decode(response.body)['title'];
-      // preId = json.decode(response.body)['previous_meeting'];
-      // _handleTasks();
       if (response.statusCode == 200) {
-        print("teri behen ki");
         print('Authentication successful');
       } else {
         print('Authentication error: ${response.reasonPhrase}');
@@ -87,15 +88,77 @@ class _AgendaFormState extends State<AgendaForm> {
         headers: {"Content-Type": "application/json"},
       );
 
-      print(
-        json.decode(response.body),
-      );
+      // print(
+      //   json.decode(response.body),
+      // );
       // print(json.decode(response.body));
       // meetName = json.decode(response.body)['title'];
       // preId = json.decode(response.body)['previous_meeting'];
       // _handleTasks();
       if (response.statusCode == 200) {
-        print("teri maa nhi h kya");
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  Future<void> _handleMovingOn() async {
+    try {
+      // Map<String, Map> json1 = {
+      //   'task': {
+      //     "summary": _summary.text,
+      //   }
+      // };
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/set/movingon/${widget.meetId}'),
+        // body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      print(json.decode(response.body));
+      // meetName = json.decode(response.body)['title'];
+      // preId = json.decode(response.body)['previous_meeting'];
+      // _handleTasks();
+      if (response.statusCode == 200) {
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  Future<void> _handlePersonnel() async {
+    try {
+      // print(_personnel.text.split('@'));
+      tagging = [];
+      Map<String, String> json1 = {
+        'prompt':
+            _personnel.text.split('@')[_personnel.text.split('@').length - 1],
+      };
+
+      final response = await http.post(
+        Uri.parse('https://meep-nine.vercel.app/profile/find'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      List personnels = json.decode(response.body);
+      List names = [];
+      List emails = [];
+      for (int i = 0; i < personnels.length; i++) {
+        tagging.add(personnels[i]['name']);
+        names.add(personnels[i]['name']);
+        emails.add(personnels[i]['email']);
+      }
+
+      if (response.statusCode == 200) {
         print('Authentication successful');
       } else {
         print('Authentication error: ${response.reasonPhrase}');
@@ -110,8 +173,12 @@ class _AgendaFormState extends State<AgendaForm> {
   TextEditingController _personnel = new TextEditingController();
   TextEditingController _deadline = new TextEditingController();
   TextEditingController _summary = new TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    Widget movingOn = MovingOn(
+      meetId: widget.meetId,
+    );
     return Container(
       width: 318,
       // / 360 * MediaQuery.of(context).size.width,
@@ -336,7 +403,8 @@ class _AgendaFormState extends State<AgendaForm> {
                               controller: _task,
                               cursorColor: kGrey,
                               decoration: kTextField.copyWith(
-                                  hintText: "Describe the task"),
+                                hintText: "Describe the task",
+                              ),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -389,10 +457,29 @@ class _AgendaFormState extends State<AgendaForm> {
                                 fontWeight: FontWeight.w700,
                                 color: kGrey,
                               ),
+                              onChanged: (value) {
+                                if (value.contains('@')) {
+                                  _handlePersonnel();
+                                }
+                              },
                             ),
                           ),
                         ],
                       ),
+                      // tagging.isNotEmpty
+                      //     ? DropdownButton(
+                      //         items: tagging.map<DropdownMenuItem<String>>(
+                      //             (String value) {
+                      //           return DropdownMenuItem<String>(
+                      //             value: value,
+                      //             child: Text(value),
+                      //           );
+                      //         }).toList(),
+                      //         onChanged: (value) {
+
+                      //         },
+                      //       )
+                      //     : Container(),
                       SizedBox(
                         height: 9,
                       ),
@@ -521,7 +608,8 @@ class _AgendaFormState extends State<AgendaForm> {
                               cursorColor: kGrey,
                               keyboardType: TextInputType.multiline,
                               decoration: kTextField.copyWith(
-                                  hintText: "Summarise the Agenda"),
+                                hintText: "Summarise the Agenda",
+                              ),
                               style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w700,
@@ -535,8 +623,17 @@ class _AgendaFormState extends State<AgendaForm> {
                         height: 15,
                       ),
                       InkWell(
-                        onTap: () {
+                        onTap: () async {
                           if (_summary.text != '') {
+                            await _handleMovingOn();
+                            await showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) {
+                                return movingOn;
+                              },
+                            );
+                            print("hogya kaam tamam");
                             _handleSummary();
                           }
                         },

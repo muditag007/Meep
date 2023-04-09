@@ -1,32 +1,33 @@
-// ignore_for_file: prefer_const_constructors, sort_child_properties_last, sized_box_for_whitespace, unused_local_variable, unused_element, avoid_print
+// ignore_for_file: unused_element
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
-import 'package:meep/pages/meet_wait_page.dart';
 import 'package:meep/utils/attendance.dart';
 import 'package:meep/utils/constants.dart';
-import 'package:meep/utils/login_controller.dart';
-import 'package:meep/utils/timer_dialog.dart';
 import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
+import 'package:meep/utils/login_controller.dart';
+import 'package:meep/utils/task_tile.dart';
+import 'package:meep/utils/task_tile_complex.dart';
 
-class WaitingPage extends StatefulWidget {
+class AttendeeWaiting extends StatefulWidget {
   final String meetId;
-  final bool linked;
-  const WaitingPage({super.key, required this.meetId, required this.linked});
-  static String id = 'waitingpage';
+  const AttendeeWaiting({super.key, required this.meetId});
 
   @override
-  State<WaitingPage> createState() => _WaitingPageState();
+  State<AttendeeWaiting> createState() => _AttendeeWaitingState();
 }
 
-class _WaitingPageState extends State<WaitingPage> {
+class _AttendeeWaitingState extends State<AttendeeWaiting> {
   LoginController controller = Get.put(LoginController());
   String meetName = '';
-  // bool linked;
+  List<dynamic> preAgendas = [];
+  List<Widget> completed = [];
+  List<Widget> incomplete = [];
+  List<dynamic> preTasks = [];
 
-  Future<void> _handleMeetingName() async {
+  Future<void> _handleMeetName() async {
     try {
       Map<String, Map> json1 = {
         'token': {
@@ -44,13 +45,10 @@ class _WaitingPageState extends State<WaitingPage> {
         body: json.encode(json1),
         headers: {"Content-Type": "application/json"},
       );
-
-      // if (json.decode(response.body)['previous_meeting'] != null) {
-      //   linked = true;
-      // }
-      print(json.decode(response.body));
-      meetName = (json.decode(response.body))['title'];
-
+      // print(json.decode(response.body));
+      meetName = json.decode(response.body)['title'];
+      // preId = json.decode(response.body)['previous_meeting'];
+      // _handleTasks();
       if (response.statusCode == 200) {
         print('Authentication successful');
       } else {
@@ -61,18 +59,108 @@ class _WaitingPageState extends State<WaitingPage> {
     }
   }
 
-  // @override
-  // void initState() {
-  //   _handleMeetingName();
-  //   super.initState();
-  // }
+  Future<void> _handleTasks() async {
+    try {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+
+      final tempResponse = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/meetings/details/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/details/tasks/previous/${json.decode(tempResponse.body)['previous_meeting']}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+      // print(json.decode(response.body));
+      preTasks = json.decode(response.body);
+      print(preTasks);
+      incomplete = [];
+      completed = [];
+
+      for (int i = 0; i < preTasks.length; i++) {
+        String per = '';
+        for (int k = 0; k < preTasks[i]['task_personnel'].length; k++) {
+          if (k == 0) {
+            per = per +
+                "@" +
+                preTasks[i]['task_personnel'][k]['name']
+                    .toString()
+                    .split(' ')[0];
+          } else {
+            per = per +
+                ", @" +
+                preTasks[i]['task_personnel'][k]['name']
+                    .toString()
+                    .split(' ')[0];
+          }
+        }
+        if (preTasks[i]['status'] == 'Incomplete') {
+          incomplete.add(
+            SizedBox(
+              height:
+                  (i == 0 ? 12 : 20) / 800 * MediaQuery.of(context).size.height,
+            ),
+          );
+          incomplete.add(
+            TaskTile(
+              // id: preTasks[i]['task_id'],
+              title: preAgendas[i]['agenda_title'],
+              deadline: preTasks[i]['deadline'].toString(),
+              personal: per,
+              taskTitle: preTasks[i]['task_title'],
+              agendaNum: preTasks[i]['agenda_num'],
+              taskNum: preTasks[i]['task_num'], complete: false,
+            ),
+          );
+        } else {
+          completed.add(
+            SizedBox(
+              height:
+                  (i == 0 ? 12 : 20) / 800 * MediaQuery.of(context).size.height,
+            ),
+          );
+          completed.add(
+            TaskTile(
+              title: preTasks[i]['agenda_title'],
+              taskTitle: preTasks[i]['task_title'],
+              personal: per,
+              deadline: preTasks[i]['deadline'].toString(),
+              complete: true,
+              agendaNum: preTasks[i]['agenda_num'],
+              taskNum: preTasks[i]['task_num'],
+            ),
+          );
+        }
+      }
+
+      if (response.statusCode == 200) {
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+      lastMeet = true;
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  bool lastMeet = false;
 
   @override
   Widget build(BuildContext context) {
-    Widget timer = TimerDialog(
-      meetId: widget.meetId,
-      linked: widget.linked,
-    );
     // Widget attendee = Attendance(
     //   attendees: [],
     //   hands: [],
@@ -100,7 +188,7 @@ class _WaitingPageState extends State<WaitingPage> {
                   width: 7,
                 ),
                 FutureBuilder(
-                  future: _handleMeetingName(),
+                  future: _handleMeetName(),
                   builder: (context, snapshot) {
                     return Text(
                       meetName,
@@ -119,10 +207,10 @@ class _WaitingPageState extends State<WaitingPage> {
                   children: [
                     InkWell(
                       onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => timer,
-                        );
+                        // showDialog(
+                        //   context: context,
+                        //   builder: (_) => timer,
+                        // );
                       },
                       child: Container(
                         height: 29 / 800 * MediaQuery.of(context).size.height,
@@ -169,12 +257,12 @@ class _WaitingPageState extends State<WaitingPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset("images/waiting.png"),
+                    Image.asset("images/conversation.png"),
                     SizedBox(
                       height: 33,
                     ),
                     Text(
-                      "Let's wait for people to join.",
+                      "We're waiting on the Host",
                       style: TextStyle(
                         fontSize: 20,
                         color: kGrey,
