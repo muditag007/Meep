@@ -16,13 +16,17 @@ class TaskTileComplex extends StatefulWidget {
   final String id;
   final String agendaNum;
   final String taskNum;
+  final String meetId;
   const TaskTileComplex({
     super.key,
     required this.agenda,
     required this.task,
     required this.deadline,
     required this.personnel,
-    required this.id, required this.agendaNum, required this.taskNum,
+    required this.id,
+    required this.agendaNum,
+    required this.taskNum,
+    required this.meetId,
   });
 
   @override
@@ -77,6 +81,38 @@ class _TaskTileComplexState extends State<TaskTileComplex> {
 
       final response = await http.post(
         Uri.parse('https://meep-nine.vercel.app/live/set/extend/${widget.id}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      if (response.statusCode == 200) {
+        print('Authentication successful');
+      } else {
+        print('Authentication error: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Sign-in error: $error');
+    }
+  }
+
+  Future<void> _handleDiscuss() async {
+    try {
+      // Map<String, Map> json1 = {
+      //   'token': {
+      //     'displayName': controller.googleAccount.value?.displayName,
+      //     'photoUrl': controller.googleAccount.value?.photoUrl,
+      //     'id': controller.googleAccount.value?.id,
+      //     'email': controller.googleAccount.value?.email,
+      //     'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+      //   }
+      // };
+      Map<String, String> json1 = {
+        'task': widget.id,
+      };
+
+      final response = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/assign/discussfurther/${widget.meetId}'),
         body: json.encode(json1),
         headers: {"Content-Type": "application/json"},
       );
@@ -507,11 +543,12 @@ class _TaskTileComplexState extends State<TaskTileComplex> {
                           hoverColor: Colors.transparent,
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          onTap: () {
-                            setState(() {
-                              later = true;
-                              markDoneVisible = false;
-                            });
+                          onTap: () async {
+                            // setState(() {
+                            //   later = true;
+                            //   markDoneVisible = false;
+                            // });
+                            await _handleDiscuss();
                           },
                           child: Container(
                             height:

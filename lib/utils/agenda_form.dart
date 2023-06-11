@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new, prefer_final_fields, unused_field, unused_element, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/utils/constants.dart';
@@ -8,6 +9,7 @@ import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
 import 'package:meep/utils/login_controller.dart';
 import 'package:meep/utils/moving_on.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class AgendaForm extends StatefulWidget {
   final String agenda;
@@ -15,6 +17,7 @@ class AgendaForm extends StatefulWidget {
   final String agendaNum;
   final String agendaId;
   final String meetId;
+  final List participants;
   const AgendaForm({
     super.key,
     required this.agenda,
@@ -22,6 +25,7 @@ class AgendaForm extends StatefulWidget {
     required this.agendaNum,
     required this.agendaId,
     required this.meetId,
+    required this.participants,
   });
 
   @override
@@ -32,17 +36,28 @@ class _AgendaFormState extends State<AgendaForm> {
   LoginController controller = Get.put(LoginController());
   List<String> tagging = [];
   List<String> emailPersons = [];
+  late Socket socket;
+
+  void connectToServer() {
+    try {
+      socket = io('https://meep-websocket.onrender.com/', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': false,
+      });
+      socket.connect();
+      print("here");
+      socket.on('connect', (_) => print('connect: ${socket.id}'));
+      socket.emit('turned on', 'hello');
+      socket.onConnectError((data) => print(data));
+      socket.on('disconnect', (_) => print('disconnect'));
+      socket.on('fromServer', (_) => print(_));
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   Future<void> _handleAppoint() async {
     try {
-      // Map<String, Map> json1 = {
-      //   'task': {
-      //     "title": _task.text,
-      //     "personnel": _personnel.text,
-      //     "deadline": _deadline.text,
-      //   }
-      // };
-
       Map<String, Map> json1 = {
         "task": {
           "title": "Task API",
@@ -136,7 +151,6 @@ class _AgendaFormState extends State<AgendaForm> {
 
   Future<void> _handlePersonnel() async {
     try {
-      // print(_personnel.text.split('@'));
       tagging = [];
       Map<String, String> json1 = {
         'prompt':
@@ -148,6 +162,9 @@ class _AgendaFormState extends State<AgendaForm> {
         body: json.encode(json1),
         headers: {"Content-Type": "application/json"},
       );
+
+      print("kidhar jaa rhi");
+      print(response.body);
 
       List personnels = json.decode(response.body);
       List names = [];
@@ -168,11 +185,37 @@ class _AgendaFormState extends State<AgendaForm> {
     }
   }
 
+  final List<String> userList = [];
+
+  List<String> _getUsersList(String searchText) {
+    final filteredUsers = userList
+        .where(
+            (user) => user.toLowerCase().startsWith(searchText.toLowerCase()))
+        .toList();
+    return filteredUsers;
+  }
+
+  void _selectUser(String username) {
+    setState(() {
+      final currentText = _personnel.text;
+      final atIndex = currentText.lastIndexOf('@');
+      final newText = currentText.replaceRange(
+          atIndex + 1, currentText.length, '$username, ');
+      _personnel.text = newText;
+    });
+  }
+
   bool appoint = true;
   TextEditingController _task = new TextEditingController();
   TextEditingController _personnel = new TextEditingController();
   TextEditingController _deadline = new TextEditingController();
   TextEditingController _summary = new TextEditingController();
+
+  @override
+  void initState() {
+    connectToServer();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -447,22 +490,57 @@ class _AgendaFormState extends State<AgendaForm> {
                           Container(
                             height: 32,
                             width: 248,
-                            child: TextField(
-                              controller: _personnel,
-                              cursorColor: kGrey,
-                              decoration:
-                                  kTextField.copyWith(hintText: "@name"),
-                              style: TextStyle(
-                                fontSize: 12.0,
-                                fontWeight: FontWeight.w700,
-                                color: kGrey,
+                            child: TypeAheadField<String>(
+                              textFieldConfiguration: TextFieldConfiguration(
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: kGrey,
+                                ),
+                                controller: _personnel,
+                                decoration:
+                                    kTextField.copyWith(hintText: "@name"),
                               ),
-                              onChanged: (value) {
-                                if (value.contains('@')) {
-                                  _handlePersonnel();
+                              suggestionsCallback: (pattern) {
+                                if (pattern.contains('@')) {
+                                  final searchText = pattern
+                                      .substring(pattern.lastIndexOf('@') + 1);
+                                  return _getUsersList(searchText);
                                 }
+                                return [];
+                              },
+                              itemBuilder: (context, suggestion) {
+                                return ListTile(
+                                  title: Text(
+                                    suggestion,
+                                    style: TextStyle(
+                                      fontSize: 12.0,
+                                      fontWeight: FontWeight.w700,
+                                      color: kGrey,
+                                    ),
+                                  ),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                _selectUser(suggestion);
                               },
                             ),
+                            // child: TextField(
+                            //   controller: _personnel,
+                            //   cursorColor: kGrey,
+                            //   decoration:
+                            //       kTextField.copyWith(hintText: "@name"),
+                            // style: TextStyle(
+                            //   fontSize: 12.0,
+                            //   fontWeight: FontWeight.w700,
+                            //   color: kGrey,
+                            // ),
+                            //   onChanged: (value) {
+                            //     if (value.contains('@')) {
+                            //       _handlePersonnel();
+                            //     }
+                            //   },
+                            // ),
                           ),
                         ],
                       ),

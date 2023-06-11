@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meep/pages/agenda_page.dart';
+import 'package:meep/utils/attendance.dart';
 import 'package:meep/utils/constants.dart';
 import 'package:meep/utils/login_controller.dart';
 import 'package:meep/utils/task_tile.dart';
@@ -41,8 +42,8 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
   DateFormat dateFormat = DateFormat("yyyy-MM-dd");
   List<bool> incompleteCheck = [];
 
-  Future<void> _handleMeetName() async {
-    try {
+  Stream<http.Response> getPreId() async* {
+    yield* Stream.periodic(Duration(milliseconds: 5), (_) {
       Map<String, Map> json1 = {
         'token': {
           'displayName': controller.googleAccount.value?.displayName,
@@ -52,25 +53,79 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
           'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
         }
       };
-
-      final response = await http.post(
+      return http.post(
         Uri.parse(
             'https://meep-nine.vercel.app/meetings/details/${widget.meetId}'),
         body: json.encode(json1),
         headers: {"Content-Type": "application/json"},
       );
-      // print(json.decode(response.body));
-      meetName = json.decode(response.body)['title'];
-      // preId = json.decode(response.body)['previous_meeting'];
-      // _handleTasks();
-      if (response.statusCode == 200) {
-        print('Authentication successful');
-      } else {
-        print('Authentication error: ${response.reasonPhrase}');
-      }
-    } catch (error) {
-      print('Sign-in error: $error');
-    }
+    }).asyncMap((event) async => await event);
+  }
+
+  Stream<http.Response> getTasks() async* {
+    yield* Stream.periodic(Duration(milliseconds: 5), (_) async {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+      final resp = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/meetings/details/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+      return http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/details/tasks/previous/${json.decode(resp.body)['previous_meeting']}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+    }).asyncMap((event) async => await event);
+  }
+
+  Stream<http.Response> getDiscuss() async* {
+    yield* Stream.periodic(Duration(milliseconds: 5), (_) {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+      return http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/details/current/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+    }).asyncMap((event) async => await event);
+  }
+
+  Stream<http.Response> getMeetName() async* {
+    yield* Stream.periodic(Duration(milliseconds: 5), (_) {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+      return http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/meetings/details/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+    }).asyncMap((event) async => await event);
   }
 
   Future<void> _handleTasks() async {
@@ -98,11 +153,28 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
         body: json.encode(json1),
         headers: {"Content-Type": "application/json"},
       );
+
+      final discussRes = await http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/details/current/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      var discussFurther = json.decode(discussRes.body);
+      print(discussFurther['discussFurther']);
+      List discussIds = [];
+      for (int i = 0; i < discussFurther['discussFurther'].length; i++) {
+        discussIds.add(discussFurther['discussFurther'][i]['task_id']);
+      }
+
       // print(json.decode(response.body));
       preTasks = json.decode(response.body);
       print(preTasks);
       incomplete = [];
       completed = [];
+      extend = [];
+      discuss = [];
 
       for (int i = 0; i < preTasks.length; i++) {
         String per = '';
@@ -121,37 +193,16 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                     .split(' ')[0];
           }
         }
-        if (preTasks[i]['status'] == 'Incomplete' &&
-            preTasks[i]['previous_deadline'] == null) {
-          incomplete.add(
+        if (discussIds.contains(preTasks[i]['task_id'])) {
+          discuss.add(
             SizedBox(
               height:
                   (i == 0 ? 12 : 20) / 800 * MediaQuery.of(context).size.height,
             ),
           );
-          incomplete.add(
-            TaskTileComplex(
-              // prevDeadline: '',
-              id: preTasks[i]['task_id'],
-              agenda: preTasks[i]['agenda_title'],
-              deadline: preTasks[i]['deadline'].toString(),
-              personnel: per,
-              task: preTasks[i]['task_title'],
-              agendaNum: preTasks[i]['agenda_num'].toString(),
-              taskNum: preTasks[i]['task_num'].toString(),
-            ),
-          );
-        } else if (preTasks[i]['status'] == 'Incomplete' &&
-            preTasks[i]['previous_deadline'] != null) {
-          extend.add(
-            SizedBox(
-              height:
-                  (i == 0 ? 12 : 20) / 800 * MediaQuery.of(context).size.height,
-            ),
-          );
-          extend.add(
+          discuss.add(
             TaskTileNormal(
-              discuss: false,
+              discuss: true,
               title: preTasks[i]['agenda_title'],
               taskTitle: preTasks[i]['task_title'],
               personal: per,
@@ -159,29 +210,76 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
               complete: false,
               agendaNum: preTasks[i]['agenda_num'].toString(),
               taskNum: preTasks[i]['task_num'].toString(),
-              prevDeadline: preTasks[i]['previous_deadline'],
-            ),
-          );
-        } else {
-          completed.add(
-            SizedBox(
-              height:
-                  (i == 0 ? 12 : 20) / 800 * MediaQuery.of(context).size.height,
-            ),
-          );
-          completed.add(
-            TaskTileNormal(
-              title: preTasks[i]['agenda_title'],
-              taskTitle: preTasks[i]['task_title'],
-              personal: per,
-              deadline: preTasks[i]['deadline'].toString(),
-              complete: true,
-              agendaNum: preTasks[i]['agenda_num'].toString(),
-              taskNum: preTasks[i]['task_num'].toString(),
-              discuss: false,
               prevDeadline: '',
             ),
           );
+        } else {
+          if (preTasks[i]['status'] == 'Incomplete' &&
+              preTasks[i]['previous_deadline'] == null) {
+            incomplete.add(
+              SizedBox(
+                height: (i == 0 ? 12 : 20) /
+                    800 *
+                    MediaQuery.of(context).size.height,
+              ),
+            );
+            incomplete.add(
+              TaskTileComplex(
+                meetId: widget.meetId,
+                // prevDeadline: '',
+                id: preTasks[i]['task_id'],
+                agenda: preTasks[i]['agenda_title'],
+                deadline: preTasks[i]['deadline'].toString(),
+                personnel: per,
+                task: preTasks[i]['task_title'],
+                agendaNum: preTasks[i]['agenda_num'].toString(),
+                taskNum: preTasks[i]['task_num'].toString(),
+              ),
+            );
+          } else if (preTasks[i]['status'] == 'Incomplete' &&
+              preTasks[i]['previous_deadline'] != null) {
+            extend.add(
+              SizedBox(
+                height: (i == 0 ? 12 : 20) /
+                    800 *
+                    MediaQuery.of(context).size.height,
+              ),
+            );
+            extend.add(
+              TaskTileNormal(
+                discuss: false,
+                title: preTasks[i]['agenda_title'],
+                taskTitle: preTasks[i]['task_title'],
+                personal: per,
+                deadline: preTasks[i]['deadline'].toString(),
+                complete: false,
+                agendaNum: preTasks[i]['agenda_num'].toString(),
+                taskNum: preTasks[i]['task_num'].toString(),
+                prevDeadline: preTasks[i]['previous_deadline'],
+              ),
+            );
+          } else {
+            completed.add(
+              SizedBox(
+                height: (i == 0 ? 12 : 20) /
+                    800 *
+                    MediaQuery.of(context).size.height,
+              ),
+            );
+            completed.add(
+              TaskTileNormal(
+                title: preTasks[i]['agenda_title'],
+                taskTitle: preTasks[i]['task_title'],
+                personal: per,
+                deadline: preTasks[i]['deadline'].toString(),
+                complete: true,
+                agendaNum: preTasks[i]['agenda_num'].toString(),
+                taskNum: preTasks[i]['task_num'].toString(),
+                discuss: false,
+                prevDeadline: '',
+              ),
+            );
+          }
         }
         print("idhar");
         print(extend);
@@ -222,17 +320,23 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                 SizedBox(
                   width: 7,
                 ),
-                FutureBuilder(
-                  future: _handleMeetName(),
+                StreamBuilder<http.Response>(
+                  stream: getMeetName(),
                   builder: (context, snapshot) {
-                    return Text(
-                      meetName,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: kGrey,
-                      ),
-                    );
+                    if (snapshot.hasData) {
+                      Map<String, dynamic> data =
+                          json.decode(snapshot.data!.body);
+                      return Text(
+                        data['title'],
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: kGrey,
+                        ),
+                      );
+                    } else {
+                      return Text("Loading...");
+                    }
                   },
                 ),
                 SizedBox(
@@ -262,7 +366,14 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                       width: 7,
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Attendance(meetId: widget.meetId);
+                          },
+                        );
+                      },
                       icon: Icon(
                         IconlyBold.user_2,
                         size: 24,
@@ -304,70 +415,354 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                         SizedBox(
                           height: 20 / 800 * MediaQuery.of(context).size.height,
                         ),
-                        FutureBuilder(
-                          future: _handleTasks(),
+                        // FutureBuilder(
+                        //   future: _handleTasks(),
+                        //   builder: (context, snapshot) {
+                        //     return Column(
+                        //       children: [
+                        // if (incomplete.isNotEmpty ||
+                        //     extend.isNotEmpty ||
+                        //     discuss.isNotEmpty)
+                        //   Row(
+                        //     children: [
+                        //       SizedBox(
+                        //         width: 32,
+                        //       ),
+                        //       Text(
+                        //         "Incomplete",
+                        //         style: TextStyle(
+                        //           fontSize: 16,
+                        //           fontWeight: FontWeight.w700,
+                        //           color: kGrey,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ...incomplete,
+                        // // SizedBox(
+                        // //   height: 12,
+                        // // ),
+                        // ...extend,
+                        // SizedBox(
+                        //   height: 12,
+                        // ),
+                        // ...discuss,
+                        // if (discuss.isNotEmpty)
+                        //   SizedBox(
+                        //     height: 30 /
+                        //         800 *
+                        //         MediaQuery.of(context).size.height,
+                        //   ),
+
+                        // if (incomplete.isNotEmpty)
+                        //   SizedBox(
+                        //     height: 30 /
+                        //         800 *
+                        //         MediaQuery.of(context).size.height,
+                        //   ),
+                        // if (completed.isNotEmpty)
+                        //   Row(
+                        //     children: [
+                        //       SizedBox(
+                        //         width: 32,
+                        //       ),
+                        //       Text(
+                        //         "Completed",
+                        //         style: TextStyle(
+                        //           fontSize: 16,
+                        //           fontWeight: FontWeight.w700,
+                        //           color: kGrey,
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ...completed,
+                        //         // TaskTileNormal(
+                        //         //   title: 'title',
+                        //         //   taskTitle: '',
+                        //         //   personal: '',
+                        //         //   deadline: "nfsvbs",
+                        //         //   complete: false,
+                        //         //   agendaNum: "0",
+                        //         //   taskNum: "0",
+                        //         //   prevDeadline: "bvsjdvjs",
+                        //         //   discuss: true,
+                        //         // ),
+                        //       ],
+                        //     );
+                        //   },
+                        // ),
+
+                        // StreamBuilder(
+                        //   stream: getPreId(),
+                        //   builder: (context, snapshot) {
+                        //     if (snapshot.hasData) {
+                        //       String previousMeetId = json.decode(
+                        //           snapshot.data!.body)['previous_meeting'];
+                        //       // print(previousMeetId)
+                        //       print("1 done");
+                        //       return
+                        StreamBuilder(
+                          stream: getDiscuss(),
                           builder: (context, snapshot) {
-                            return Column(
-                              children: [
-                                if (incomplete.isNotEmpty ||
-                                    extend.isNotEmpty ||
-                                    discuss.isNotEmpty)
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 32,
-                                      ),
-                                      Text(
-                                        "Incomplete",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: kGrey,
+                            if (snapshot.hasData) {
+                              Map discussFurther =
+                                  json.decode(snapshot.data!.body);
+                              // print(discussFurther);
+
+                              // print("2 done");
+                              return StreamBuilder(
+                                stream: getTasks(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List<dynamic> tasksData =
+                                        json.decode(snapshot.data!.body);
+                                    List discussIds = [];
+                                    for (int i = 0;
+                                        i <
+                                            discussFurther['discussFurther']
+                                                .length;
+                                        i++) {
+                                      discussIds.add(
+                                          discussFurther['discussFurther'][i]
+                                              ['task_id']);
+                                    }
+                                    incomplete = [];
+                                    completed = [];
+                                    extend = [];
+                                    discuss = [];
+
+                                    for (int i = 0; i < tasksData.length; i++) {
+                                      String per = '';
+                                      for (int k = 0;
+                                          k <
+                                              tasksData[i]['task_personnel']
+                                                  .length;
+                                          k++) {
+                                        if (k == 0) {
+                                          per = per +
+                                              "@" +
+                                              tasksData[i]['task_personnel'][k]
+                                                      ['name']
+                                                  .toString()
+                                                  .split(' ')[0];
+                                        } else {
+                                          per = per +
+                                              ", @" +
+                                              tasksData[i]['task_personnel'][k]
+                                                      ['name']
+                                                  .toString()
+                                                  .split(' ')[0];
+                                        }
+                                      }
+                                      if (discussIds
+                                          .contains(tasksData[i]['task_id'])) {
+                                        discuss.add(
+                                          SizedBox(
+                                            height: (i == 0 ? 12 : 20) /
+                                                800 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .height,
+                                          ),
+                                        );
+                                        discuss.add(
+                                          TaskTileNormal(
+                                            discuss: true,
+                                            title: tasksData[i]['agenda_title'],
+                                            taskTitle: tasksData[i]
+                                                ['task_title'],
+                                            personal: per,
+                                            deadline: tasksData[i]['deadline']
+                                                .toString(),
+                                            complete: false,
+                                            agendaNum: tasksData[i]
+                                                    ['agenda_num']
+                                                .toString(),
+                                            taskNum: tasksData[i]['task_num']
+                                                .toString(),
+                                            prevDeadline: '',
+                                          ),
+                                        );
+                                      } else {
+                                        if (tasksData[i]['status'] ==
+                                                'Incomplete' &&
+                                            tasksData[i]['previous_deadline'] ==
+                                                null) {
+                                          incomplete.add(
+                                            SizedBox(
+                                              height: (i == 0 ? 12 : 20) /
+                                                  800 *
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .height,
+                                            ),
+                                          );
+                                          incomplete.add(
+                                            TaskTileComplex(
+                                              meetId: widget.meetId,
+                                              // prevDeadline: '',
+                                              id: tasksData[i]['task_id'],
+                                              agenda: tasksData[i]
+                                                  ['agenda_title'],
+                                              deadline: tasksData[i]['deadline']
+                                                  .toString(),
+                                              personnel: per,
+                                              task: tasksData[i]['task_title'],
+                                              agendaNum: tasksData[i]
+                                                      ['agenda_num']
+                                                  .toString(),
+                                              taskNum: tasksData[i]['task_num']
+                                                  .toString(),
+                                            ),
+                                          );
+                                        } else if (tasksData[i]['status'] ==
+                                                'Incomplete' &&
+                                            tasksData[i]['previous_deadline'] !=
+                                                null) {
+                                          extend.add(
+                                            SizedBox(
+                                              height: (i == 0 ? 12 : 20) /
+                                                  800 *
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .height,
+                                            ),
+                                          );
+                                          extend.add(
+                                            TaskTileNormal(
+                                              discuss: false,
+                                              title: tasksData[i]
+                                                  ['agenda_title'],
+                                              taskTitle: tasksData[i]
+                                                  ['task_title'],
+                                              personal: per,
+                                              deadline: tasksData[i]['deadline']
+                                                  .toString(),
+                                              complete: false,
+                                              agendaNum: tasksData[i]
+                                                      ['agenda_num']
+                                                  .toString(),
+                                              taskNum: tasksData[i]['task_num']
+                                                  .toString(),
+                                              prevDeadline: tasksData[i]
+                                                  ['previous_deadline'],
+                                            ),
+                                          );
+                                        } else {
+                                          completed.add(
+                                            SizedBox(
+                                              height: (i == 0 ? 12 : 20) /
+                                                  800 *
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .height,
+                                            ),
+                                          );
+                                          completed.add(
+                                            TaskTileNormal(
+                                              title: tasksData[i]
+                                                  ['agenda_title'],
+                                              taskTitle: tasksData[i]
+                                                  ['task_title'],
+                                              personal: per,
+                                              deadline: tasksData[i]['deadline']
+                                                  .toString(),
+                                              complete: true,
+                                              agendaNum: tasksData[i]
+                                                      ['agenda_num']
+                                                  .toString(),
+                                              taskNum: tasksData[i]['task_num']
+                                                  .toString(),
+                                              discuss: false,
+                                              prevDeadline: '',
+                                            ),
+                                          );
+                                        }
+                                      }
+                                      // print("idhar");
+                                      // print(extend);
+                                    }
+                                    return Column(
+                                      children: [
+                                        if (incomplete.isNotEmpty ||
+                                            extend.isNotEmpty ||
+                                            discuss.isNotEmpty)
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 32,
+                                              ),
+                                              Text(
+                                                "Incomplete",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: kGrey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ...incomplete,
+                                        // SizedBox(
+                                        //   height: 12,
+                                        // ),
+                                        ...extend,
+                                        SizedBox(
+                                          height: 12,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ...incomplete,
-                                ...extend,
-                                ...discuss,
-                                if (incomplete.isNotEmpty)
-                                  SizedBox(
-                                    height: 30 /
-                                        800 *
-                                        MediaQuery.of(context).size.height,
-                                  ),
-                                if (completed.isNotEmpty)
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 32,
-                                      ),
-                                      Text(
-                                        "Completed",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: kGrey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ...completed,
-                                // TaskTileNormal(
-                                //   title: 'title',
-                                //   taskTitle: '',
-                                //   personal: '',
-                                //   deadline: "nfsvbs",
-                                //   complete: false,
-                                //   agendaNum: "0",
-                                //   taskNum: "0",
-                                //   prevDeadline: "bvsjdvjs",
-                                //   discuss: true,
-                                // ),
-                              ],
-                            );
+                                        ...discuss,
+                                        if (discuss.isNotEmpty)
+                                          SizedBox(
+                                            height: 30 /
+                                                800 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .height,
+                                          ),
+
+                                        if (incomplete.isNotEmpty)
+                                          SizedBox(
+                                            height: 30 /
+                                                800 *
+                                                MediaQuery.of(context)
+                                                    .size
+                                                    .height,
+                                          ),
+                                        if (completed.isNotEmpty)
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                width: 32,
+                                              ),
+                                              Text(
+                                                "Completed",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: kGrey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ...completed,
+                                      ],
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                },
+                              );
+                            } else {
+                              return CircularProgressIndicator();
+                            }
                           },
                         ),
+                        //     } else {
+                        //       return CircularProgressIndicator();
+                        //     }
+                        //   },
+                        // ),
                         SizedBox(
                           height: 12 / 800 * MediaQuery.of(context).size.height,
                         ),

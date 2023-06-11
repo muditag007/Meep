@@ -1,132 +1,82 @@
-// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, avoid_unnecessary_containers, sort_child_properties_last, unused_element, avoid_print, unused_local_variable, prefer_if_null_operators
+// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, unused_element, unused_import, depend_on_referenced_packages, prefer_if_null_operators, avoid_print, override_on_non_overriding_member, unused_local_variable
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+import 'package:gradient_borders/box_borders/gradient_box_border.dart';
 import 'package:iconly/iconly.dart';
-import 'package:meep/pages/meeting_details.dart';
 import 'package:meep/pages/mom_notifications.dart';
 import 'package:meep/pages/previous_meet_page.dart';
 import 'package:meep/pages/profile_page.dart';
+import 'package:meep/pages/signin_page.dart';
+import 'package:meep/provider/home_provider.dart';
 import 'package:meep/utils/constants.dart';
+import 'package:flutter_switch/flutter_switch.dart';
+import 'dart:convert' show json;
+import 'package:http/http.dart' as http;
 import 'package:meep/utils/count_tile.dart';
 import 'package:meep/utils/login_controller.dart';
 import 'package:meep/utils/meet_tile.dart';
-import 'package:http/http.dart' as http;
 import 'package:meep/utils/upcoming_meet_tile.dart';
-import 'dart:convert' show json;
-import 'package:meep/utils/upcoming_tile.dart';
+import 'package:riverpod/riverpod.dart';
+import 'package:meep/models/user_model.dart';
+import 'package:meep/services/services.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-  static String id = "homepage";
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+import '../provider/user_provider.dart';
 
-class _HomePageState extends State<HomePage> {
-  Map<String, dynamic> homePageRes = {};
-  List<Widget> upcomingMeets = [];
-  List<Widget> previousMeets = [];
+class HomePage extends ConsumerWidget {
+  HomePage({Key? key}) : super(key: key);
+  static String id = 'homepage';
   final controller = Get.put(LoginController());
-
-  Future<void> _handleHomePage() async {
-    try {
-      // Map json1 = {
-      //   'name': 'Mudit',
-      //   'email': 'mudit@gmail.com',
-      //   'picture':
-      //       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg',
-      // };
-      Map<String, Map> json1 = {
-        'token': {
-          'displayName': controller.googleAccount.value?.displayName,
-          'photoUrl': controller.googleAccount.value?.photoUrl,
-          'id': controller.googleAccount.value?.id,
-          'email': controller.googleAccount.value?.email,
-          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
-        }
-      };
-      // Map json1 = {
-      //   'displayName':controller.googleAccount.value?.displayName,
-      //   'photoUrl':controller.googleAccount.value?.photoUrl,
-      //   'id':controller.googleAccount.value?.id,
-      //   'email':controller.googleAccount.value?.email,
-      // };
-      // print("jhegfivb");
-      // print(controller.googleAccount.value);
-
-      final response = await http.post(
-        Uri.parse('https://meep-nine.vercel.app/home'),
-        body: json.encode(json1),
-        headers: {"Content-Type": "application/json"},
-      );
-
-      homePageRes = (json.decode(response.body));
-      // print(homePageRes['previous']);
-      previousMeets = [];
-      upcomingMeets = [];
-      for (int i = 0; i < homePageRes['previous'].length; i++) {
-        previousMeets.add(
-          MeetTile(
-            name: homePageRes['previous'][i]['title'],
-            date: homePageRes['previous'][i]['date'],
-            time: homePageRes['previous'][i]['time'],
-            team: homePageRes['previous'][i]['team_name'],
-          ),
-        );
-      }
-
-      for (int i = 0; i < homePageRes['upcoming'].length; i++) {
-        if (i != 0) {
-          upcomingMeets.add(
-            SizedBox(
-              height: 10,
-            ),
-          );
-        }
-        upcomingMeets.add(
-          UpcomingMeetTile(
-            title: homePageRes['upcoming'][i]['title'],
-            host: homePageRes['upcoming'][i]['host'],
-            time: homePageRes['upcoming'][i]['time'],
-            team_name: homePageRes['upcoming'][i]['team_name'],
-            venue: homePageRes['upcoming'][i]['venue'],
-            id: homePageRes['upcoming'][i]['_id'],
-          ),
-        );
-      }
-      // print(homePageRes);
-
-      if (response.statusCode == 200) {
-        print('Authentication successful');
-      } else {
-        print('Authentication error: ${response.reasonPhrase}');
-      }
-    } catch (error) {
-      print('Sign-in error: $error');
-    }
-  }
-
   @override
-  void initState() {
-    _handleHomePage();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    // use ref to listen to a provider
+    final counter = ref.watch(homeDataProvider);
+    // return Text('${counter}');
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage("images/background.png"), fit: BoxFit.cover),
-        ),
-        child: FutureBuilder<void>(
-          future: _handleHomePage(),
-          builder: (context, snapshot) {
-            if (homePageRes['name'] != null) {
-              return CustomScrollView(
+      body: counter.when(
+        data: (counter) {
+          List<Widget> upcoming = [];
+          for (int i = 0; i < counter.upcoming!.length; i++) {
+            if (i != 0) {
+              upcoming.add(
+                SizedBox(
+                  height: 10,
+                ),
+              );
+            }
+            upcoming.add(
+              UpcomingMeetTile(
+                title: counter.upcoming![i].title.toString(),
+                host: counter.upcoming![i].host.toString(),
+                time: counter.upcoming![i].time.toString(),
+                team_name: counter.upcoming![i].teamName.toString(),
+                venue: counter.upcoming![i].venue.toString(),
+                id: counter.upcoming![i].sId.toString(),
+              ),
+            );
+          }
+          List<Widget> previous = [];
+          for (int i = 0; i < counter.previous!.length; i++) {
+            previous.add(
+              MeetTile(
+                name: counter.previous![i].title.toString(),
+                date: counter.upcoming![i].date.toString(),
+                time: counter.upcoming![i].time.toString(),
+                team: counter.upcoming![i].teamName.toString(),
+              ),
+            );
+          }
+          print(counter.name.toString());
+          return Scaffold(
+            body: DecoratedBox(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("images/background.png"),
+                    fit: BoxFit.cover),
+              ),
+              child: CustomScrollView(
                 slivers: [
                   SliverFillRemaining(
                     child: Column(
@@ -143,9 +93,7 @@ class _HomePageState extends State<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  homePageRes['name'] != null
-                                      ? "Hello, ${homePageRes['name'].toString().split(' ')[0]}!"
-                                      : "Hello, ...!",
+                                  "Hello, ${counter.name.toString().split(' ')[0]}!",
                                   style: TextStyle(
                                     fontSize: 32,
                                     color: Colors.white,
@@ -167,9 +115,7 @@ class _HomePageState extends State<HomePage> {
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
                                           image: NetworkImage(
-                                            homePageRes['image'] != null
-                                                ? homePageRes['image']
-                                                : "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png",
+                                            counter.image.toString(),
                                           ),
                                         ),
                                         borderRadius: BorderRadius.all(
@@ -199,16 +145,12 @@ class _HomePageState extends State<HomePage> {
                               children: [
                                 CountTile(
                                   name: "Meetings",
-                                  count: homePageRes['name'] != null
-                                      ? "${homePageRes['meetings']}"
-                                      : "10",
+                                  count: counter.meetings.toString(),
                                   onpressed: () {},
                                 ),
                                 CountTile(
                                   name: "Updates",
-                                  count: homePageRes['name'] != null
-                                      ? "${homePageRes['updates']}"
-                                      : "10",
+                                  count: counter.updates.toString(),
                                   onpressed: () {
                                     Navigator.pushNamed(
                                         context, MomNotifications.id);
@@ -216,9 +158,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 CountTile(
                                   name: "Tasks",
-                                  count: homePageRes['name'] != null
-                                      ? "${homePageRes['tasks']}"
-                                      : "10",
+                                  count: counter.tasks.toString(),
                                   onpressed: () {},
                                 ),
                               ],
@@ -283,7 +223,7 @@ class _HomePageState extends State<HomePage> {
                                         800 *
                                         MediaQuery.of(context).size.height,
                                   ),
-                                  ...upcomingMeets,
+                                  ...upcoming,
                                   SizedBox(
                                     height: 30 /
                                         800 *
@@ -305,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                                         800 *
                                         MediaQuery.of(context).size.height,
                                   ),
-                                  ...previousMeets,
+                                  ...previous,
                                   Material(
                                     child: InkWell(
                                       hoverColor: Colors.transparent,
@@ -366,75 +306,28 @@ class _HomePageState extends State<HomePage> {
                     hasScrollBody: false,
                   )
                 ],
-              );
-            } else {
-              return DecoratedBox(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: AssetImage("images/background.png"),
-                      fit: BoxFit.cover),
-                ),
-                child: Center(
-                  child: Container(
-                    height: 100,
-                    width: 100,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 10,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              );
-            }
-          },
+              ),
+            ),
+          );
+        },
+        error: (err, s) => Text(err.toString()),
+        loading: () => DecoratedBox(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("images/background.png"), fit: BoxFit.cover),
+          ),
+          child: Center(
+            child: Container(
+              height: 100,
+              width: 100,
+              child: CircularProgressIndicator(
+                strokeWidth: 10,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 }
-
-// final double _spacing = 16.0;
-//   late double _baseWidth;
-//   final _colors = [
-//     Colors.greenAccent.shade100,
-//     Colors.pink.shade100,
-//     Colors.amber.shade100,
-//   ];
-
-// _baseWidth = MediaQuery.of(context).size.width > 544
-//         ? 512.0
-//         : MediaQuery.of(context).size.width - 32;
-    
-
-// GestureDetector(
-//                   child: Stack(children: [
-//                     ..._colors.asMap().entries.map(
-//                           (entry) => Positioned(
-//                             top: _spacing * entry.key,
-//                             left: _spacing * (_colors.length - (entry.key + 1)),
-//                             child: InkWell(
-//                               onTap: () {
-//                                 Navigator.pushNamed(context, HomePage.id);
-//                               },
-//                               child: Container(
-//                                 height: 200,
-//                                 width: _baseWidth -
-//                                     (_spacing *
-//                                         (_colors.length - (entry.key + 1)) *
-//                                         2),
-//                                 decoration: BoxDecoration(
-//                                   borderRadius: BorderRadius.circular(16),
-//                                   color: entry.value,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         )
-//                   ]),
-//                   onTap: () {
-//                     print("hello");
-//                   },
-//                   onVerticalDragDown: (_) =>
-//                       setState(() => _colors.insert(0, _colors.removeLast())),
-//                 ),
-

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meep/pages/home_page.dart';
+import 'package:meep/pages/temp.dart';
 import 'package:meep/utils/constants.dart';
 import 'dart:async';
 import 'dart:convert' show json;
@@ -40,7 +41,7 @@ class _SignInPageState extends State<SignInPage> {
       };
       // print(controller.googleAccount.value);
 
-      // print(json1);
+      print(json1);
       // print(json.encode(json1));
 
       final response = await http.post(

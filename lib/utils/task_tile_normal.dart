@@ -201,7 +201,7 @@ class TaskTileNormal extends StatelessWidget {
                         : Row(
                             children: [
                               Text(
-                                "${prevDeadline}",
+                                "${prevDeadline.substring(0, 16)}",
                                 style: TextStyle(
                                   decoration: TextDecoration.lineThrough,
                                   fontSize: 16,
@@ -214,7 +214,7 @@ class TaskTileNormal extends StatelessWidget {
                                 // textDirection: TextDirection.ltr,
                               ),
                               Text(
-                                "  ${deadline}",
+                                "  ${deadline.substring(0, 16)}",
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w400,

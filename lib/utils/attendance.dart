@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meep/utils/constants.dart';
@@ -26,6 +28,26 @@ class _AttendanceState extends State<Attendance> {
   List<Widget> attendees = [];
   List<Widget> hands = [];
 
+  Stream<http.Response> getAttendees() async* {
+    yield* Stream.periodic(Duration(milliseconds: 1), (_) {
+      Map<String, Map> json1 = {
+        'token': {
+          'displayName': controller.googleAccount.value?.displayName,
+          'photoUrl': controller.googleAccount.value?.photoUrl,
+          'id': controller.googleAccount.value?.id,
+          'email': controller.googleAccount.value?.email,
+          'serverAuthCode': controller.googleAccount.value?.serverAuthCode,
+        }
+      };
+      return http.post(
+        Uri.parse(
+            'https://meep-nine.vercel.app/live/details/attendees/${widget.meetId}'),
+        body: json.encode(json1),
+        headers: {"Content-Type": "application/json"},
+      );
+    }).asyncMap((event) async => await event);
+  }
+
   Future<void> _handleAttendees() async {
     try {
       Map<String, Map> json1 = {
@@ -45,20 +67,7 @@ class _AttendanceState extends State<Attendance> {
         headers: {"Content-Type": "application/json"},
       );
 
-      // final handsRes = await http.post(
-      //   Uri.parse(
-      //       'https://meep-nine.vercel.app/live/details/raisedhands/${widget.meetId}'),
-      //   body: json.encode(json1),
-      //   headers: {"Content-Type": "application/json"},
-      // );
-
-      // print(attendeesRes.body);
-      // print("done");
-      // print(handsRes.body);
-
       Map attendeesResMap = json.decode(attendeesRes.body);
-      // print(attendeesResMap);
-      // print(attendeesResMap['attendees']);
 
       attendees = [];
       for (int i = 0; i < attendeesResMap['attendees'].length; i++) {
@@ -88,13 +97,83 @@ class _AttendanceState extends State<Attendance> {
         height: 472,
         width: 318,
         child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 20,
-            ),
-            child: FutureBuilder(
-              future: _handleAttendees(),
-              builder: (context, snapshot) {
+          padding: EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 20,
+          ),
+          // child: FutureBuilder(
+          //   future: _handleAttendees(),
+          //   builder: (context, snapshot) {
+          //     return Column(
+          //       children: [
+          //         if (hands.isNotEmpty)
+          //           Column(
+          //             children: [
+          //               Padding(
+          //                 padding: EdgeInsets.symmetric(
+          //                   horizontal: 10,
+          //                 ),
+          //                 child: Align(
+          //                   alignment: Alignment.centerLeft,
+          //                   child: Text(
+          //                     "Hands Raised",
+          //                     style: TextStyle(
+          //                       fontSize: 18,
+          //                       fontWeight: FontWeight.w600,
+          //                     ),
+          //                   ),
+          //                 ),
+          //               ),
+          //               SizedBox(
+          //                 height: 8,
+          //               ),
+          //               Divider(
+          //                 thickness: 2,
+          //                 color: kGrey,
+          //               ),
+          //               ...hands,
+          //             ],
+          //           ),
+          //         Padding(
+          //           padding: EdgeInsets.symmetric(
+          //             horizontal: 10,
+          //           ),
+          //           child: Align(
+          //             alignment: Alignment.centerLeft,
+          //             child: Text(
+          //               "Attendees",
+          //               style: TextStyle(
+          //                 fontSize: 18,
+          //                 fontWeight: FontWeight.w600,
+          //               ),
+          //             ),
+          //           ),
+          //         ),
+          //         SizedBox(
+          //           height: 8,
+          //         ),
+          //         Divider(
+          //           thickness: 2,
+          //           color: kGrey,
+          //         ),
+          //         ...attendees,
+          //       ],
+          //     );
+          //   },
+          // ),
+          child: StreamBuilder(
+            stream: getAttendees(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                Map attendeesResMap = json.decode(snapshot.data!.body);
+                attendees = [];
+                for (int i = 0; i < attendeesResMap['attendees'].length; i++) {
+                  attendees.add(
+                    Invitee(
+                        name: attendeesResMap['attendees'][i]['name'],
+                        image: attendeesResMap['attendees'][i]['image']),
+                  );
+                }
                 return Column(
                   children: [
                     if (hands.isNotEmpty)
@@ -150,8 +229,18 @@ class _AttendanceState extends State<Attendance> {
                     ...attendees,
                   ],
                 );
-              },
-            )),
+              } else {
+                return Center(
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
       ),
     );
   }
