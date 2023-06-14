@@ -300,6 +300,24 @@ class _AgendaPageAttendeeState extends State<AgendaPageAttendee> {
       agendasList = json.decode(response.body);
       agendasWidget = [];
       print(agendasList);
+
+      socket.on(
+        'Refresh',
+        (mId) => {
+          if (mId == widget.meetId)
+            {
+              // print("refresh"),
+              // Navigator.pushAndRemoveUntil(
+              //   context,
+              //   MaterialPageRoute(
+              //       builder: (context) =>
+              //           AgendaPageAttendee(meetId: widget.meetId)),
+              //   (Route<dynamic> route) => false,
+              // ),
+            }
+        },
+      );
+
       int k = 0;
       for (int i = 0; i < agendasList.length; i++) {
         if (agendasList[i]['summary'] == null) {
@@ -310,6 +328,7 @@ class _AgendaPageAttendeeState extends State<AgendaPageAttendee> {
                 agenda: agendasList[i]['title'],
                 desc: agendasList[i]['description'],
                 agenda_num: agendasList[i]['agenda_num'].toString(),
+                expnaded: change,
                 // agendaId: agendasList[i]['_id'],
               ),
             );
@@ -325,14 +344,6 @@ class _AgendaPageAttendeeState extends State<AgendaPageAttendee> {
             );
           }
         } else {
-          // final taskRes = await http.post(
-          //   Uri.parse(
-          //       'https://meep-nine.vercel.app/tasks/${agendasList[i]['_id']}'),
-          //   body: json.encode(json1),
-          //   headers: {"Content-Type": "application/json"},
-          // );
-          // print("hellovrkvbrjv");
-          // print(json.decode(taskRes.body));
           agendasWidget.add(
             AgendaTask(
               agendaNum: agendasList[i]['agenda_num'].toString(),
@@ -340,9 +351,9 @@ class _AgendaPageAttendeeState extends State<AgendaPageAttendee> {
               task: 'task',
               desc: agendasList[i]['description'],
               summary: agendasList[i]['summary'],
-              personnel: '',
-              deadline: '',
-              taskNum: '',
+              personnel: '@Mudit, @Div',
+              deadline: '21st Dec\'23',
+              taskNum: '1',
             ),
           );
           k++;
@@ -370,9 +381,68 @@ class _AgendaPageAttendeeState extends State<AgendaPageAttendee> {
     }
   }
 
+  void _handleSocket(dynamic data) {
+    if (widget.meetId == data) {
+      print("teri maa");
+      setState(() {
+        agendasWidget.add(
+          ShortAgendaAttendee(
+            agenda: "agenda",
+            desc: "yvhvhbvju",
+            agenda_num: "1",
+            meetId: widget.meetId,
+            expnaded: true,
+          ),
+        );
+      });
+    } else {
+      print("Hello");
+      print(data);
+    }
+  }
+
+  bool change = false;
+
   @override
   void initState() {
     connectToServer();
+    socket.on(
+        'Move On Anyway',
+        (mId) => {
+              if (mId == widget.meetId)
+                {
+                  print("refresh"),
+                  // setState(() {
+                  //   change = true;
+                  // }),
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AgendaPageAttendee(meetId: widget.meetId)),
+                    (Route<dynamic> route) => false,
+                  ),
+                }
+            });
+    socket.on(
+        'Same Page',
+        (mId) => {
+              if (mId == widget.meetId)
+                {
+                  print("refresh"),
+                  setState(() {
+                    change = true;
+                  }),
+                  // Navigator.pushAndRemoveUntil(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) =>
+                  //           AgendaPageAttendee(meetId: widget.meetId)),
+                  //   (Route<dynamic> route) => false,
+                  // ),
+                }
+            });
+    // socket.on('Refresh', _handleSocket);
     super.initState();
   }
 
@@ -494,7 +564,9 @@ class _AgendaPageAttendeeState extends State<AgendaPageAttendee> {
                       future: _handleAgendas(),
                       builder: (context, snapshot) {
                         return Column(
-                          children: agendasWidget,
+                          children: [
+                            ...agendasWidget,
+                          ],
                         );
                       },
                     ),

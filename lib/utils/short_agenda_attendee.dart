@@ -7,18 +7,21 @@ import 'package:meep/utils/constants.dart';
 import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
 import 'package:meep/utils/login_controller.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class ShortAgendaAttendee extends StatefulWidget {
   final String agenda;
   final String desc;
   final String agenda_num;
   final String meetId;
+  final bool expnaded;
   const ShortAgendaAttendee(
       {super.key,
       required this.agenda,
       required this.desc,
       required this.agenda_num,
-      required this.meetId});
+      required this.meetId,
+      required this.expnaded});
 
   @override
   State<ShortAgendaAttendee> createState() => _ShortAgendaAttendeeState();
@@ -26,7 +29,26 @@ class ShortAgendaAttendee extends StatefulWidget {
 
 class _ShortAgendaAttendeeState extends State<ShortAgendaAttendee> {
   LoginController controller = Get.put(LoginController());
-  bool cond = true;
+  // bool cond = true;
+  late Socket socket;
+
+  void connectToServer() {
+    try {
+      socket = io('https://meep-websocket.onrender.com/', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': false,
+      });
+      socket.connect();
+      print("here");
+      socket.on('connect', (_) => print('connect: ${socket.id}'));
+      socket.emit('turned on', 'hello');
+      socket.onConnectError((data) => print(data));
+      socket.on('disconnect', (_) => print('disconnect'));
+      socket.on('fromServer', (_) => print(_));
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   Future<void> _handleWaiting() async {
     try {
@@ -47,7 +69,6 @@ class _ShortAgendaAttendeeState extends State<ShortAgendaAttendee> {
         headers: {"Content-Type": "application/json"},
       );
 
-      print("teri ammi ki ding ding");
       print(json.decode(response.body));
 
       if (response.statusCode == 200) {
@@ -61,8 +82,14 @@ class _ShortAgendaAttendeeState extends State<ShortAgendaAttendee> {
   }
 
   @override
+  void initState() {
+    connectToServer();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
       width: 318,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -80,6 +107,9 @@ class _ShortAgendaAttendeeState extends State<ShortAgendaAttendee> {
           )
         ],
         borderRadius: BorderRadius.circular(15),
+      ),
+      duration: Duration(
+        milliseconds: 100,
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -158,7 +188,7 @@ class _ShortAgendaAttendeeState extends State<ShortAgendaAttendee> {
                 ),
               ],
             ),
-            if (cond)
+            if (widget.expnaded)
               Column(
                 children: [
                   SizedBox(
@@ -178,6 +208,10 @@ class _ShortAgendaAttendeeState extends State<ShortAgendaAttendee> {
                   InkWell(
                     onTap: () async {
                       await _handleWaiting();
+                      socket.emit('Moving On', widget.meetId);
+                      // setState(() {
+                      //   widget.expnaded = false;
+                      // });
                     },
                     child: Container(
                       height: 30,

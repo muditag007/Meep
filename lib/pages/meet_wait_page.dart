@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, avoid_unnecessary_containers, sort_child_properties_last, unused_element, unused_local_variable, avoid_print, unnecessary_brace_in_string_interps, prefer_interpolation_to_compose_strings, use_build_context_synchronously, depend_on_referenced_packages
+// ignore_for_file: prefer_const_constructors, sized_box_for_whitespace, avoid_unnecessary_containers, sort_child_properties_last, unused_element, unused_local_variable, avoid_print, unnecessary_brace_in_string_interps, prefer_interpolation_to_compose_strings, use_build_context_synchronously, depend_on_referenced_packages, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +13,7 @@ import 'dart:convert' show json;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:meep/utils/task_tile_normal.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class MeetWaitPage extends StatefulWidget {
   final String meetId;
@@ -293,6 +294,48 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
     } catch (error) {
       print('Sign-in error: $error');
     }
+  }
+
+  late Socket socket;
+
+  void connectToServer() {
+    try {
+      socket = io('https://meep-websocket.onrender.com/', <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': false,
+      });
+      socket.connect();
+      print("here");
+      socket.on('connect', (_) => print('connect: ${socket.id}'));
+      socket.emit('turned on', 'hello');
+      socket.onConnectError((data) => print(data));
+      socket.on('disconnect', (_) => print('disconnect'));
+      socket.on('fromServer', (_) => print(_));
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    connectToServer();
+    socket.on(
+        'Refresh',
+        (mId) => {
+              if (mId == widget.meetId)
+                {
+                  print("refresh"),
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            MeetWaitPage(meetId: widget.meetId)),
+                    (Route<dynamic> route) => false,
+                  ),
+                }
+            });
+    // socket.on('Refresh',widget.meetId)
+    super.initState();
   }
 
   @override
@@ -784,6 +827,7 @@ class _MeetWaitPageState extends State<MeetWaitPage> {
                     onTap: () {
                       // Navigator.pushNamed(context, AgendaPage.id);
                       if (incomplete.isEmpty) {
+                        socket.emit('Proceed', widget.meetId);
                         Navigator.push(
                           context,
                           MaterialPageRoute(

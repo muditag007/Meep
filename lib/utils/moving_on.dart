@@ -92,21 +92,21 @@ class _MovingOnState extends State<MovingOn> {
       // _handleTasks();
       resp = json.decode(response.body)['moving_on'];
       if (resp.length == 0) {
-        socket.emit('Refresh', widget.meetId);
-        socket.on(
-            'Refresh',
-            (mId) => {
-                  if (mId == widget.meetId)
-                    {
-                      print("refresh"),
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                AgendaPage(meetId: widget.meetId)),
-                      ),
-                    }
-                });
+        socket.emit('Move On Anyway', widget.meetId);
+        // socket.on(
+        //     'Refresh',
+        //     (mId) => {
+        //           if (mId == widget.meetId)
+        //             {
+        //               print("refresh"),
+        //               Navigator.push(
+        //                 context,
+        //                 MaterialPageRoute(
+        //                     builder: (context) =>
+        //                         AgendaPage(meetId: widget.meetId)),
+        //               ),
+        //             }
+        //         });
       }
       personnels = [];
       for (int i = 0; i < resp.length; i++) {
@@ -155,6 +155,42 @@ class _MovingOnState extends State<MovingOn> {
   @override
   void initState() {
     connectToServer();
+    socket.on(
+        'Move On Anyway',
+        (mId) => {
+              if (mId == widget.meetId)
+                {
+                  print("refresh"),
+
+                  // setState(() {
+                  //   change = true;
+                  // }),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AgendaPage(meetId: widget.meetId))
+                    // (Route<dynamic> route) => false,
+                  ),
+                }
+            });
+    socket.on(
+        'Moving On',
+        (mId) => {
+              if (mId == widget.meetId)
+                {
+                  print("refresh"),
+                  // setState(() {
+                  //   change = true;
+                  // }),
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MovingOn(meetId: widget.meetId)),
+                    (Route<dynamic> route) => false,
+                  ),
+                }
+            });
     super.initState();
   }
 
@@ -188,21 +224,6 @@ class _MovingOnState extends State<MovingOn> {
                 child: FutureBuilder(
                   future: _handleMovingOn(),
                   builder: (context, snapshot) {
-                    socket.on(
-                        'Refresh',
-                        (mId) => {
-                              if (mId == widget.meetId)
-                                {
-                                  print("refresh"),
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            MovingOn(meetId: widget.meetId)),
-                                    (Route<dynamic> route) => false,
-                                  ),
-                                }
-                            });
                     return Column(
                       children: personnels,
                     );
@@ -251,7 +272,7 @@ class _MovingOnState extends State<MovingOn> {
               InkWell(
                 onTap: () async {
                   await _handleReset();
-                  socket.emit('Refresh', widget.meetId);
+                  socket.emit('Move On Anyway', widget.meetId);
                   // socket.on(
                   //     'refresh',
                   //     (mId) => {
